@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-const LOCK_TIME = new Date('2026-05-27T10:00:00Z').getTime(); // 3 AM PST = 10:00 UTC
+const LOCK_TIME = new Date('2026-05-27T09:00:00Z').getTime(); // 2 AM PST = 09:00 UTC
 
 export default function Countdown() {
   const [now, setNow] = useState(Date.now());
