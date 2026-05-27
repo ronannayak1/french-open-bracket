@@ -565,7 +565,6 @@ body {
   width: 190px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
 }
 
 .round-column--final {
@@ -594,16 +593,20 @@ body {
   flex-direction: column;
 }
 
-.round-match-cell {
+.round-matches--positioned {
   position: relative;
+  flex: 1;
 }
 
-.center-stack {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 16px;
+.round-match-cell {
+  position: relative;
+  left: 0;
+  right: 0;
+  width: 100%;
+}
+
+.round-matches--positioned > .round-match-cell {
+  position: absolute;
 }
 
 /* ================================================================
@@ -732,6 +735,7 @@ body {
   align-items: center;
   text-align: center;
   gap: 8px;
+  width: 100%;
 }
 
 .trophy { font-size: 36px; }

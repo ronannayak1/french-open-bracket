@@ -2,7 +2,11 @@ import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist';
 import pdfWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import { tournamentData } from './data';
 import { Match, OfficialResult, Player } from './types';
-import { abbrevMatchesPlayer, playerToAbbrev } from './playerNames';
+import {
+  abbrevMatchesPlayer,
+  opponentSearchTokens,
+  playerToAbbrev,
+} from './playerNames';
 import { buildDisplayScore } from './scoreFormat';
 
 GlobalWorkerOptions.workerSrc = pdfWorker;
@@ -12,10 +16,25 @@ export interface PdfParsedResult {
   seed?: number;
   scorePart: string;
   rawLine: string;
+  charIndex: number;
+  walkoverWin?: boolean;
 }
 
-const RESULT_LINE_RE =
-  /([A-Z](?:[A-Z])?\.[A-Z][A-Z'.\-]+?)(?:\s+\[(\d+)\])?\s+((?:(?:\d+\/\d+(?:\(\d+\))?(?:\s+Ab)?|WO)\s*)+)/g;
+const PDF_ABBREV_PART =
+  '[A-Z](?:[A-Z])?\\.(?:[A-Z][A-Z\'.\\-]+(?:\\s+[A-Z][A-Z\'.\\-]+)*)';
+
+const SET_SCORE_PART =
+  '(?:\\d+\\/\\d+(?:\\(\\d+\\))?(?:\\s+Ab)?|\\d+\\/\\d+\\s+Ab)';
+
+const RESULT_WITH_SCORES_RE = new RegExp(
+  `(${PDF_ABBREV_PART})(?:\\s+\\[(\\d+)\\])?\\s+((?:${SET_SCORE_PART}\\s*)+)`,
+  'g'
+);
+
+const RESULT_WO_WIN_RE = new RegExp(
+  `(${PDF_ABBREV_PART})(?:\\s+\\[(\\d+)\\])?\\s+WO\\b`,
+  'g'
+);
 
 export async function extractTextFromPdf(file: File): Promise<string> {
   const data = new Uint8Array(await file.arrayBuffer());
@@ -32,22 +51,48 @@ export async function extractTextFromPdf(file: File): Promise<string> {
   return text;
 }
 
+/** Loser line in PDF: has set scores then WO suffix — not the match winner. */
+function isLoserWalkoverLine(scorePart: string): boolean {
+  return /\d+\/\d+/.test(scorePart) && /\bWO\s*$/i.test(scorePart.trim());
+}
+
 export function parsePdfResults(text: string): PdfParsedResult[] {
   const results: PdfParsedResult[] = [];
-  const re = new RegExp(RESULT_LINE_RE.source, 'g');
+
   let m: RegExpExecArray | null;
-  while ((m = re.exec(text)) !== null) {
+  const scoreRe = new RegExp(RESULT_WITH_SCORES_RE.source, 'g');
+  while ((m = scoreRe.exec(text)) !== null) {
     const abbrev = m[1]!.trim();
     const seed = m[2] ? parseInt(m[2], 10) : undefined;
     const scorePart = m[3]!.trim();
-    if (!scorePart || scorePart.length < 3) continue;
+    if (!scorePart || isLoserWalkoverLine(scorePart)) continue;
     results.push({
       abbrev,
       seed,
       scorePart,
       rawLine: m[0].trim(),
+      charIndex: m.index,
     });
   }
+
+  const woRe = new RegExp(RESULT_WO_WIN_RE.source, 'g');
+  while ((m = woRe.exec(text)) !== null) {
+    const abbrev = m[1]!.trim();
+    const seed = m[2] ? parseInt(m[2], 10) : undefined;
+    const idx = m.index;
+    const already = results.some((r) => Math.abs(r.charIndex - idx) < 30);
+    if (already) continue;
+    results.push({
+      abbrev,
+      seed,
+      scorePart: 'WO',
+      rawLine: m[0].trim(),
+      charIndex: idx,
+      walkoverWin: true,
+    });
+  }
+
+  results.sort((a, b) => a.charIndex - b.charIndex);
   return results;
 }
 
@@ -82,23 +127,71 @@ function resolvePlayersForMatch(
   return { player1: players[0], player2: players[1] };
 }
 
-function findMatchingPdfResult(
+function contextWindow(text: string, charIndex: number, size = 320): string {
+  const start = Math.max(0, charIndex - size);
+  return text.slice(start, charIndex).toUpperCase();
+}
+
+function contextIncludesOpponent(
+  window: string,
+  opponent: Player
+): boolean {
+  const tokens = opponentSearchTokens(opponent.name);
+  return tokens.some((t) => t.length >= 3 && window.includes(t));
+}
+
+function findBestPdfResultForMatch(
+  pdfText: string,
   pdfResults: PdfParsedResult[],
   used: Set<number>,
-  player1: Player | null,
-  player2: Player | null
+  player1: Player,
+  player2: Player
 ): { index: number; winner: Player; parsed: PdfParsedResult } | null {
+  const candidates: number[] = [];
   for (let i = 0; i < pdfResults.length; i++) {
     if (used.has(i)) continue;
     const pr = pdfResults[i]!;
-    if (player1 && abbrevMatchesPlayer(pr.abbrev, player1.name)) {
-      return { index: i, winner: player1, parsed: pr };
-    }
-    if (player2 && abbrevMatchesPlayer(pr.abbrev, player2.name)) {
-      return { index: i, winner: player2, parsed: pr };
+    if (
+      abbrevMatchesPlayer(pr.abbrev, player1.name) ||
+      abbrevMatchesPlayer(pr.abbrev, player2.name)
+    ) {
+      candidates.push(i);
     }
   }
-  return null;
+
+  if (candidates.length === 0) return null;
+  if (candidates.length === 1) {
+    const i = candidates[0]!;
+    const pr = pdfResults[i]!;
+    const winner = abbrevMatchesPlayer(pr.abbrev, player1.name) ? player1 : player2;
+    return { index: i, winner, parsed: pr };
+  }
+
+  const scored: { index: number; score: number }[] = [];
+  for (const i of candidates) {
+    const pr = pdfResults[i]!;
+    const winner = abbrevMatchesPlayer(pr.abbrev, player1.name) ? player1 : player2;
+    const opponent = winner === player1 ? player2 : player1;
+    const window = contextWindow(pdfText, pr.charIndex);
+    let score = 0;
+    if (contextIncludesOpponent(window, opponent)) score += 10;
+    if (pr.walkoverWin) score += 3;
+    score += i / 1000;
+    scored.push({ index: i, score });
+  }
+
+  scored.sort((a, b) => b.score - a.score);
+  const best = scored[0]!;
+  if (best.score >= 10) {
+    const pr = pdfResults[best.index]!;
+    const winner = abbrevMatchesPlayer(pr.abbrev, player1.name) ? player1 : player2;
+    return { index: best.index, winner, parsed: pr };
+  }
+
+  const last = candidates[candidates.length - 1]!;
+  const pr = pdfResults[last]!;
+  const winner = abbrevMatchesPlayer(pr.abbrev, player1.name) ? player1 : player2;
+  return { index: last, winner, parsed: pr };
 }
 
 export interface ApplyPdfReport {
@@ -108,10 +201,6 @@ export interface ApplyPdfReport {
   skippedMatches: string[];
 }
 
-/**
- * Map PDF score lines onto bracket matches in draw order (round 2 → final).
- * Merges with existing official results (new PDF data overrides per match).
- */
 export function applyPdfResultsToOfficial(
   pdfText: string,
   existing: Record<string, OfficialResult> = {}
@@ -134,7 +223,13 @@ export function applyPdfResultsToOfficial(
         continue;
       }
 
-      const hit = findMatchingPdfResult(pdfResults, used, player1, player2);
+      const hit = findBestPdfResultForMatch(
+        pdfText,
+        pdfResults,
+        used,
+        player1,
+        player2
+      );
       if (!hit) continue;
 
       used.add(hit.index);

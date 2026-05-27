@@ -1,10 +1,12 @@
 import { Player } from './types';
+import { playerToAbbrev } from './playerNames';
 
 export interface ParsedSet {
   won: boolean;
   winnerGames: number;
   loserGames: number;
   tiebreakLost?: number;
+  tiebreakWon?: number;
   abandoned?: boolean;
 }
 
@@ -42,6 +44,7 @@ export function parseSetScores(scorePart: string): ParsedSet[] {
       winnerGames,
       loserGames,
       tiebreakLost: !won && tb !== undefined ? tb : undefined,
+      tiebreakWon: won && winnerGames === 7 && loserGames === 6 && tb !== undefined ? tb : undefined,
       abandoned,
     });
   }
@@ -66,10 +69,7 @@ export function buildDisplayScore(
 }
 
 function formatWinnerAbbrev(fullName: string): string {
-  const parts = fullName.trim().split(/\s+/);
-  const last = parts[parts.length - 1]!;
-  const first = parts[0]!;
-  return `${first[0]}.${last}`;
+  return playerToAbbrev(fullName);
 }
 
 export function describeSet(set: ParsedSet, index: number): string {
@@ -79,6 +79,9 @@ export function describeSet(set: ParsedSet, index: number): string {
   }
   if (!set.won && set.tiebreakLost !== undefined) {
     return `Set ${index + 1}: Lost ${set.loserGames}-${set.winnerGames} (tiebreak ${7}-${set.tiebreakLost})`;
+  }
+  if (set.won && set.tiebreakWon !== undefined) {
+    return `Set ${index + 1}: Won ${set.winnerGames}-${set.loserGames} (tiebreak ${set.tiebreakWon}-${set.loserGames})`;
   }
   if (set.won) {
     return `Set ${index + 1}: Won ${set.winnerGames}-${set.loserGames}`;

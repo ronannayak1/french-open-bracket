@@ -55,14 +55,16 @@ export default function MatchScoreModal({
             </div>
           )}
         </div>
-        {sets.length > 0 ? (
+        {/^\s*WO\s*$/i.test(scorePart) ? (
+          <p className="score-modal-note">Match won by walkover.</p>
+        ) : sets.length > 0 ? (
           <ul className="score-modal-sets">
             {sets.map((set, i) => (
               <li key={i}>{describeSet(set, i)}</li>
             ))}
           </ul>
         ) : (
-          <p className="score-modal-note">Walkover or score not parsed.</p>
+          <p className="score-modal-note">Score not parsed.</p>
         )}
         <p className="score-modal-footnote">
           Scores are read from the winner&apos;s perspective — their games are listed first in each set (e.g. 6/7(3) is a tiebreak loss).

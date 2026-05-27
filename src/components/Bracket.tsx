@@ -1,6 +1,15 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Match, ROUND_LABELS, OfficialResult } from '../types';
 import { getMatchesByRound, getEliminatedSlashKeys } from '../bracketEngine';
+import {
+  getBracketHeights,
+  getBracketTotalHeight,
+  getColumnHeight,
+  getFinalTop,
+  getMatchTop,
+  getBlockSize,
+  getSemiTop,
+} from '../bracketLayout';
 import MatchCard from './MatchCard';
 
 function useCompactBracket() {
@@ -53,22 +62,23 @@ function RoundColumn({
   eliminatedSlashKeys?: Set<string>;
   onViewScore?: (matchId: string) => void;
 }) {
-  const baseUnit = compact ? 36 : 60;
-  const roundIndex = round - 2;
-  const spacing = baseUnit * Math.pow(2, roundIndex);
+  const { cardHeight, slotHeight } = getBracketHeights(compact, showScores);
+  const columnHeight = getColumnHeight(matches.length, round, slotHeight);
+  const blockSize = getBlockSize(round, slotHeight);
 
   return (
     <div className="round-column" data-side={side}>
       <div className="round-label">{ROUND_LABELS[round]}</div>
       <div
-        className="round-matches"
-        style={{
-          gap: `${spacing - baseUnit}px`,
-          paddingTop: `${(spacing - baseUnit) / 2}px`,
-        }}
+        className="round-matches round-matches--positioned"
+        style={{ height: columnHeight }}
       >
         {matches.map((match, i) => (
-          <div key={match.id} className="round-match-cell">
+          <div
+            key={match.id}
+            className="round-match-cell"
+            style={{ top: getMatchTop(i, round, slotHeight, cardHeight) }}
+          >
             <MatchCard
               match={match}
               onPickWinner={onPickWinner}
@@ -82,7 +92,7 @@ function RoundColumn({
             {round >= 2 && round <= 6 && (
               <Connector
                 side={side}
-                spacing={spacing}
+                halfSpan={blockSize / 2}
                 isEven={i % 2 === 0}
                 hasNext={!!match.nextMatchId}
               />
@@ -96,18 +106,17 @@ function RoundColumn({
 
 function Connector({
   side,
-  spacing,
+  halfSpan,
   isEven,
   hasNext,
 }: {
   side: 'left' | 'right';
-  spacing: number;
+  halfSpan: number;
   isEven: boolean;
   hasNext: boolean;
 }) {
   if (!hasNext) return null;
 
-  const halfHeight = spacing / 2;
   const lineX = side === 'left' ? 'right' : 'left';
 
   return (
@@ -123,7 +132,7 @@ function Connector({
         className="connector-v"
         style={{
           [lineX]: 0,
-          height: `${halfHeight}px`,
+          height: `${halfSpan}px`,
           top: isEven ? '50%' : undefined,
           bottom: isEven ? undefined : '50%',
         }}
@@ -142,6 +151,8 @@ export default function Bracket({
   onViewScore,
 }: BracketProps) {
   const compactLayout = useCompactBracket();
+  const { cardHeight, slotHeight } = getBracketHeights(compactLayout, showScores);
+  const totalHeight = getBracketTotalHeight(slotHeight);
   const eliminatedSlashKeys = useMemo(() => {
     if (!userPicks || !officialResults || Object.keys(officialResults).length === 0) {
       return undefined;
@@ -186,7 +197,7 @@ export default function Bracket({
         Swipe sideways to explore the full bracket
       </p>
       <div className="bracket-scroll">
-        <div className="bracket-grid">
+        <div className="bracket-grid" style={{ minHeight: totalHeight }}>
         {leftRounds.map(({ round, matches: roundMatches }) => (
           <RoundColumn
             key={`left-${round}`}
@@ -205,11 +216,18 @@ export default function Bracket({
 
         <div className="round-column round-column--center">
           <div className="round-label">{ROUND_LABELS[6]}</div>
-          <div className="center-stack">
+          <div
+            className="round-matches round-matches--positioned"
+            style={{ height: totalHeight }}
+          >
             {semis
               .filter((m) => m.position === 1)
               .map((match) => (
-                <div key={match.id} className="round-match-cell">
+                <div
+                  key={match.id}
+                  className="round-match-cell"
+                  style={{ top: getSemiTop(1, slotHeight, cardHeight) }}
+                >
                   <MatchCard
                     match={match}
                     onPickWinner={onPickWinner}
@@ -226,9 +244,16 @@ export default function Bracket({
 
         <div className="round-column round-column--center round-column--final">
           <div className="round-label round-label--final">{ROUND_LABELS[7]}</div>
-          <div className="center-stack">
+          <div
+            className="round-matches round-matches--positioned"
+            style={{ height: totalHeight }}
+          >
             {final.map((match) => (
-              <div key={match.id} className="final-wrapper">
+              <div
+                key={match.id}
+                className="final-wrapper round-match-cell"
+                style={{ top: getFinalTop(slotHeight, cardHeight) }}
+              >
                 <div className="trophy">🏆</div>
                 <MatchCard
                   match={match}
@@ -251,11 +276,18 @@ export default function Bracket({
 
         <div className="round-column round-column--center">
           <div className="round-label">{ROUND_LABELS[6]}</div>
-          <div className="center-stack">
+          <div
+            className="round-matches round-matches--positioned"
+            style={{ height: totalHeight }}
+          >
             {semis
               .filter((m) => m.position === 2)
               .map((match) => (
-                <div key={match.id} className="round-match-cell">
+                <div
+                  key={match.id}
+                  className="round-match-cell"
+                  style={{ top: getSemiTop(2, slotHeight, cardHeight) }}
+                >
                   <MatchCard
                     match={match}
                     onPickWinner={onPickWinner}
