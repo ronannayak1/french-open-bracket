@@ -8,6 +8,7 @@ import BracketViewer from './components/BracketViewer';
 import OfficialBracket from './components/OfficialBracket';
 import Leaderboard from './components/Leaderboard';
 import Countdown, { isLocked } from './components/Countdown';
+import NavTabs from './components/NavTabs';
 
 type Page = 'bracket' | 'view' | 'official' | 'leaderboard';
 
@@ -177,35 +178,13 @@ export default function App() {
 
           <Countdown />
 
-          <div className="nav-links">
-            <button
-              className={`nav-link ${page === 'bracket' ? 'nav-link--active' : ''}`}
-              onClick={() => setPage('bracket')}
-            >
-              My Bracket
-            </button>
-            <button
-              className={`nav-link ${page === 'leaderboard' ? 'nav-link--active' : ''}`}
-              onClick={() => setPage('leaderboard')}
-            >
-              Leaderboard
-            </button>
-            <button
-              className={`nav-link ${page === 'official' ? 'nav-link--active' : ''}`}
-              onClick={() => setPage('official')}
-            >
-              Official
-            </button>
-            <button
-              className={`nav-link ${page === 'view' ? 'nav-link--active' : ''}`}
-              onClick={() => setPage('view')}
-            >
-              Brackets
-              {submittedCount > 0 && (
-                <span className="nav-badge">{submittedCount}</span>
-              )}
-            </button>
-          </div>
+          <NavTabs
+            page={page}
+            onNavigate={setPage}
+            submittedCount={submittedCount}
+            variant="header"
+          />
+
           <div className="nav-user">
             {editingName ? (
               <div className="nav-name-edit">
@@ -243,6 +222,15 @@ export default function App() {
             </button>
           </div>
         </div>
+      </nav>
+
+      <nav className="nav-bottom-bar" aria-label="Mobile navigation">
+        <NavTabs
+          page={page}
+          onNavigate={setPage}
+          submittedCount={submittedCount}
+          variant="bottom"
+        />
       </nav>
 
       {page === 'bracket' && (

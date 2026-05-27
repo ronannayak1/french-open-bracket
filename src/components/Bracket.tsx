@@ -1,6 +1,23 @@
+import { useState, useEffect } from 'react';
 import { Match, ROUND_LABELS, OfficialResult } from '../types';
 import { getMatchesByRound } from '../bracketEngine';
 import MatchCard from './MatchCard';
+
+function useCompactBracket() {
+  const [compact, setCompact] = useState(() =>
+    typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches
+  );
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)');
+    const update = () => setCompact(mq.matches);
+    update();
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
+  }, []);
+
+  return compact;
+}
 
 interface BracketProps {
   matches: Match[];
@@ -18,6 +35,7 @@ function RoundColumn({
   side,
   officialResults,
   showScores,
+  compact,
 }: {
   matches: Match[];
   round: number;
@@ -26,8 +44,9 @@ function RoundColumn({
   side: 'left' | 'right';
   officialResults?: Record<string, OfficialResult>;
   showScores?: boolean;
+  compact: boolean;
 }) {
-  const baseUnit = 60;
+  const baseUnit = compact ? 36 : 60;
   const roundIndex = round - 2;
   const spacing = baseUnit * Math.pow(2, roundIndex);
 
@@ -111,6 +130,7 @@ export default function Bracket({
   officialResults,
   showScores = false,
 }: BracketProps) {
+  const compactLayout = useCompactBracket();
   const byRound = getMatchesByRound(matches);
 
   const splitByHalf = (round: number, splitAt: number) => {
@@ -143,8 +163,12 @@ export default function Bracket({
   ];
 
   return (
-    <div className="bracket-scroll">
-      <div className="bracket-grid">
+    <div className="bracket-scroll-wrap">
+      <p className="bracket-scroll-hint" aria-hidden="true">
+        Swipe sideways to explore the full bracket
+      </p>
+      <div className="bracket-scroll">
+        <div className="bracket-grid">
         {leftRounds.map(({ round, matches: roundMatches }) => (
           <RoundColumn
             key={`left-${round}`}
@@ -155,6 +179,7 @@ export default function Bracket({
             side="left"
             officialResults={officialResults}
             showScores={showScores}
+            compact={compactLayout}
           />
         ))}
 
@@ -229,8 +254,10 @@ export default function Bracket({
             side="right"
             officialResults={officialResults}
             showScores={showScores}
+            compact={compactLayout}
           />
         ))}
+        </div>
       </div>
     </div>
   );

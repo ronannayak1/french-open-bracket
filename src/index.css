@@ -6,6 +6,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
 :root {
+  --nav-bottom-height: 0px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+
   --bg-primary: #0f1118;
   --bg-secondary: #181c25;
   --bg-card: #1e2230;
@@ -31,6 +34,11 @@
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
+
+button {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
 
 body {
   background: var(--bg-primary);
@@ -222,6 +230,15 @@ body {
 }
 
 .nav-links { display: flex; gap: 4px; }
+
+.nav-link-short { display: none; }
+.nav-link-full { display: inline; }
+
+.nav-links--header { flex: 1; justify-content: center; }
+
+.nav-bottom-bar {
+  display: none;
+}
 
 .nav-link {
   background: none;
@@ -418,10 +435,20 @@ body {
 /* ================================================================
    BRACKET LAYOUT — March Madness style
    ================================================================ */
+.bracket-scroll-wrap {
+  position: relative;
+}
+
+.bracket-scroll-hint {
+  display: none;
+}
+
 .bracket-scroll {
   overflow-x: auto;
   overflow-y: auto;
   padding-bottom: 24px;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
 }
 
 .bracket-grid {
@@ -1124,4 +1151,338 @@ body {
   color: var(--text-muted);
   margin-top: 12px;
   text-align: right;
+}
+
+/* ================================================================
+   RESPONSIVE — tablet & mobile
+   ================================================================ */
+
+@media (max-width: 1024px) {
+  .nav-inner {
+    padding: 10px 16px;
+    gap: 12px;
+  }
+
+  .nav-link {
+    padding: 8px 12px;
+    font-size: 11px;
+  }
+
+  .main-content {
+    padding: 12px 16px 32px;
+  }
+}
+
+@media (max-width: 767px) {
+  :root {
+    --nav-bottom-height: 64px;
+  }
+
+  .app {
+    padding-bottom: calc(var(--nav-bottom-height) + var(--safe-bottom));
+  }
+
+  /* Header: brand + countdown + account */
+  .nav-inner {
+    flex-wrap: wrap;
+    padding: 10px 12px;
+    padding-top: max(10px, env(safe-area-inset-top));
+    gap: 8px;
+  }
+
+  .nav-brand h1 {
+    font-size: 14px;
+  }
+
+  .nav-brand-sub {
+    display: none;
+  }
+
+  .nav-links--header {
+    display: none;
+  }
+
+  .countdown {
+    margin-left: auto;
+    padding: 4px 10px;
+  }
+
+  .countdown-label {
+    display: none;
+  }
+
+  .cd-num {
+    font-size: 14px;
+    min-width: 20px;
+  }
+
+  .nav-user {
+    width: 100%;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-top: 4px;
+    border-top: 1px solid var(--border);
+  }
+
+  .nav-user-name-display {
+    margin-right: auto;
+  }
+
+  /* Bottom tab bar */
+  .nav-bottom-bar {
+    display: block;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 110;
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border);
+    padding-bottom: var(--safe-bottom);
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.35);
+  }
+
+  .nav-bottom-tabs {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    width: 100%;
+  }
+
+  .nav-bottom-tabs .nav-link {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 2px;
+    padding: 10px 4px;
+    min-height: 56px;
+    border-radius: 0;
+    font-size: 10px;
+    letter-spacing: 0.3px;
+  }
+
+  .nav-bottom-tabs .nav-link-full {
+    display: none;
+  }
+
+  .nav-bottom-tabs .nav-link-short {
+    display: inline;
+  }
+
+  .nav-bottom-tabs .nav-badge {
+    position: absolute;
+    top: 6px;
+    right: calc(50% - 28px);
+  }
+
+  .nav-bottom-tabs .nav-link {
+    position: relative;
+  }
+
+  .main-content {
+    padding: 10px 12px 16px;
+  }
+
+  /* Toolbar stacks on small screens */
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .toolbar-info {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .toolbar-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .toolbar-actions .btn--danger {
+    grid-column: 1 / -1;
+  }
+
+  .btn {
+    min-height: 44px;
+    padding: 12px 14px;
+    font-size: 11px;
+  }
+
+  /* Bracket: narrower columns, swipe hint */
+  .bracket-scroll-hint {
+    display: block;
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: center;
+    padding: 0 12px 10px;
+  }
+
+  .bracket-scroll {
+    margin: 0 -12px;
+    padding: 0 12px 16px;
+    scroll-padding-inline: 12px;
+  }
+
+  .round-column {
+    min-width: 132px;
+    width: 132px;
+    padding: 0 4px;
+  }
+
+  .round-column--center {
+    min-width: 140px;
+    width: 140px;
+  }
+
+  .round-column--final {
+    min-width: 148px;
+    width: 148px;
+  }
+
+  .bracket-connector {
+    width: 10px;
+  }
+
+  .connector-h {
+    width: 10px !important;
+  }
+
+  .player-slot {
+    min-height: 44px;
+    padding: 8px 6px;
+    gap: 3px;
+  }
+
+  .player-slot--selectable:active {
+    background: var(--bg-card-hover);
+  }
+
+  .match-card--compact .player-slot {
+    min-height: 38px;
+  }
+
+  .player-name {
+    font-size: 10px;
+  }
+
+  .player-tag {
+    font-size: 8px;
+    min-width: 16px;
+  }
+
+  .champion-label {
+    font-size: 9px;
+    padding: 4px 8px;
+    max-width: 100%;
+    word-break: break-word;
+  }
+
+  .trophy {
+    font-size: 28px;
+  }
+
+  /* Viewer tabs scroll horizontally */
+  .viewer-tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+    margin: 0 -12px 16px;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .viewer-tab {
+    flex-shrink: 0;
+    min-height: 44px;
+  }
+
+  .viewer-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .viewer-meta {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  /* Leaderboard cards */
+  .lb-card {
+    flex-wrap: wrap;
+    padding: 14px 16px;
+    gap: 10px;
+  }
+
+  .lb-card-points {
+    width: 100%;
+    display: flex;
+    align-items: baseline;
+    justify-content: flex-end;
+    padding-top: 4px;
+    border-top: 1px solid var(--border);
+  }
+
+  .lb-card-pts-num {
+    font-size: 24px;
+  }
+
+  .lb-breakdown {
+    padding: 14px;
+    margin: 0 -4px;
+  }
+
+  .lb-table {
+    font-size: 11px;
+  }
+
+  .lb-table th,
+  .lb-table td {
+    padding: 8px 6px;
+  }
+
+  /* Login */
+  .login-card {
+    margin: 16px;
+    padding: 32px 24px;
+    border-radius: 16px;
+  }
+
+  .login-users {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .login-user-btn {
+    min-height: 48px;
+    padding: 16px;
+  }
+
+  .login-submit-btn {
+    min-height: 48px;
+  }
+}
+
+@media (max-width: 380px) {
+  .nav-brand h1 {
+    font-size: 12px;
+  }
+
+  .round-column {
+    min-width: 120px;
+    width: 120px;
+  }
+
+  .toolbar-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .toolbar-actions .btn--danger {
+    grid-column: auto;
+  }
 }
