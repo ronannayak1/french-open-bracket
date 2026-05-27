@@ -7,9 +7,11 @@ import {
   opponentSearchTokens,
   playerToAbbrev,
 } from './playerNames';
-import { buildDisplayScore } from './scoreFormat';
+import { buildDisplayScore, parseSetScores } from './scoreFormat';
 
 GlobalWorkerOptions.workerSrc = pdfWorker;
+
+const MAX_SETS = 5;
 
 export interface PdfParsedResult {
   abbrev: string;
@@ -18,6 +20,7 @@ export interface PdfParsedResult {
   rawLine: string;
   charIndex: number;
   walkoverWin?: boolean;
+  orphan?: boolean;
 }
 
 const PDF_ABBREV_PART =
@@ -26,8 +29,11 @@ const PDF_ABBREV_PART =
 const SET_SCORE_PART =
   '(?:\\d+\\/\\d+(?:\\(\\d+\\))?(?:\\s+Ab)?|\\d+\\/\\d+\\s+Ab)';
 
+/** At most MAX_SETS per match — prevents merging adjacent PDF results. */
+const SCORE_GROUP_PART = `(?:(?:${SET_SCORE_PART})\\s*){1,5}`;
+
 const RESULT_WITH_SCORES_RE = new RegExp(
-  `(${PDF_ABBREV_PART})(?:\\s+\\[(\\d+)\\])?\\s+((?:${SET_SCORE_PART}\\s*)+)`,
+  `(${PDF_ABBREV_PART})(?:\\s+\\[(\\d+)\\])?\\s+(${SCORE_GROUP_PART})`,
   'g'
 );
 
@@ -35,6 +41,8 @@ const RESULT_WO_WIN_RE = new RegExp(
   `(${PDF_ABBREV_PART})(?:\\s+\\[(\\d+)\\])?\\s+WO\\b`,
   'g'
 );
+
+const STANDALONE_SCORES_RE = new RegExp(SCORE_GROUP_PART, 'g');
 
 export async function extractTextFromPdf(file: File): Promise<string> {
   const data = new Uint8Array(await file.arrayBuffer());
@@ -46,32 +54,46 @@ export async function extractTextFromPdf(file: File): Promise<string> {
     text += content.items
       .map((item) => ('str' in item ? item.str : ''))
       .join(' ')
-      .concat('\n');
+      .concat(' ');
   }
   return text;
 }
 
-/** Loser line in PDF: has set scores then WO suffix — not the match winner. */
+function trimToMaxSets(scorePart: string): string {
+  const sets = scorePart.trim().match(new RegExp(SET_SCORE_PART, 'g'));
+  if (!sets) return scorePart.trim();
+  return sets.slice(0, MAX_SETS).join(' ');
+}
+
 function isLoserWalkoverLine(scorePart: string): boolean {
   return /\d+\/\d+/.test(scorePart) && /\bWO\s*$/i.test(scorePart.trim());
 }
 
+function spansOverlap(aStart: number, aEnd: number, bStart: number, bEnd: number): boolean {
+  return aStart < bEnd && bStart < aEnd;
+}
+
 export function parsePdfResults(text: string): PdfParsedResult[] {
   const results: PdfParsedResult[] = [];
+  const claimedRanges: { start: number; end: number }[] = [];
 
   let m: RegExpExecArray | null;
   const scoreRe = new RegExp(RESULT_WITH_SCORES_RE.source, 'g');
   while ((m = scoreRe.exec(text)) !== null) {
     const abbrev = m[1]!.trim();
     const seed = m[2] ? parseInt(m[2], 10) : undefined;
-    const scorePart = m[3]!.trim();
+    const scorePart = trimToMaxSets(m[3]!);
     if (!scorePart || isLoserWalkoverLine(scorePart)) continue;
+    const start = m.index;
+    const end = m.index + m[0].length;
+    claimedRanges.push({ start, end });
     results.push({
       abbrev,
       seed,
       scorePart,
       rawLine: m[0].trim(),
-      charIndex: m.index,
+      charIndex: start,
+      orphan: false,
     });
   }
 
@@ -80,8 +102,10 @@ export function parsePdfResults(text: string): PdfParsedResult[] {
     const abbrev = m[1]!.trim();
     const seed = m[2] ? parseInt(m[2], 10) : undefined;
     const idx = m.index;
-    const already = results.some((r) => Math.abs(r.charIndex - idx) < 30);
-    if (already) continue;
+    if (claimedRanges.some((r) => spansOverlap(idx, idx + m[0].length, r.start, r.end))) {
+      continue;
+    }
+    claimedRanges.push({ start: idx, end: idx + m[0].length });
     results.push({
       abbrev,
       seed,
@@ -89,6 +113,28 @@ export function parsePdfResults(text: string): PdfParsedResult[] {
       rawLine: m[0].trim(),
       charIndex: idx,
       walkoverWin: true,
+      orphan: false,
+    });
+  }
+
+  const orphanRe = new RegExp(STANDALONE_SCORES_RE.source, 'g');
+  while ((m = orphanRe.exec(text)) !== null) {
+    const scorePart = trimToMaxSets(m[0]);
+    if (!scorePart || scorePart.length < 3) continue;
+    const start = m.index;
+    const end = start + m[0].length;
+    if (claimedRanges.some((r) => spansOverlap(start, end, r.start, r.end))) {
+      continue;
+    }
+    const before = text.slice(Math.max(0, start - 3), start);
+    if (/[A-Z]\.\s*$/.test(before) || /\[\d+\]\s*$/.test(before)) continue;
+    claimedRanges.push({ start, end });
+    results.push({
+      abbrev: '',
+      scorePart,
+      rawLine: scorePart,
+      charIndex: start,
+      orphan: true,
     });
   }
 
@@ -127,17 +173,128 @@ function resolvePlayersForMatch(
   return { player1: players[0], player2: players[1] };
 }
 
-function contextWindow(text: string, charIndex: number, size = 320): string {
-  const start = Math.max(0, charIndex - size);
-  return text.slice(start, charIndex).toUpperCase();
+function windowBefore(text: string, charIndex: number, size: number): string {
+  return text.slice(Math.max(0, charIndex - size), charIndex).toUpperCase();
 }
 
-function contextIncludesOpponent(
-  window: string,
-  opponent: Player
-): boolean {
-  const tokens = opponentSearchTokens(opponent.name);
+function windowHasPlayer(window: string, player: Player): boolean {
+  const tokens = opponentSearchTokens(player.name);
   return tokens.some((t) => t.length >= 3 && window.includes(t));
+}
+
+function bothPlayersInWindow(
+  text: string,
+  charIndex: number,
+  p1: Player,
+  p2: Player,
+  size = 280
+): boolean {
+  const w = windowBefore(text, charIndex, size);
+  return windowHasPlayer(w, p1) && windowHasPlayer(w, p2);
+}
+
+/** Last abbrev+score line in the short window before this position. */
+function lastAbbrevScoreBefore(
+  text: string,
+  charIndex: number,
+  lookback = 90
+): string | null {
+  const slice = text.slice(Math.max(0, charIndex - lookback), charIndex);
+  const re = new RegExp(
+    `(${PDF_ABBREV_PART})(?:\\s+\\[(\\d+)\\])?\\s+${SCORE_GROUP_PART}`,
+    'g'
+  );
+  let last: string | null = null;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(slice)) !== null) {
+    last = m[1]!.trim();
+  }
+  return last;
+}
+
+function winnerFromOrphanScore(
+  text: string,
+  pr: PdfParsedResult,
+  p1: Player,
+  p2: Player
+): Player | null {
+  const sets = parseSetScores(pr.scorePart);
+  if (sets.length === 0 || sets.length > MAX_SETS) return null;
+  const wins = sets.filter((s) => s.won).length;
+  const losses = sets.length - wins;
+  if (wins <= losses) return null;
+
+  const prevAbbrev = lastAbbrevScoreBefore(text, pr.charIndex, 100);
+  if (prevAbbrev) {
+    if (abbrevMatchesPlayer(prevAbbrev, p1.name)) return p2;
+    if (abbrevMatchesPlayer(prevAbbrev, p2.name)) return p1;
+  }
+
+  if (windowHasPlayer(windowBefore(text, pr.charIndex, 120), p1)) return p1;
+  return p2;
+}
+
+function winnerFromAbbrevLine(pr: PdfParsedResult, p1: Player, p2: Player): Player {
+  if (abbrevMatchesPlayer(pr.abbrev, p1.name)) return p1;
+  if (abbrevMatchesPlayer(pr.abbrev, p2.name)) return p2;
+  return p1;
+}
+
+interface MatchCandidate {
+  index: number;
+  score: number;
+}
+
+function scoreCandidate(
+  text: string,
+  pr: PdfParsedResult,
+  p1: Player,
+  p2: Player
+): number {
+  const sets = parseSetScores(pr.scorePart);
+  if (pr.walkoverWin) {
+    if (!bothPlayersInWindow(text, pr.charIndex, p1, p2, 200)) return -1;
+    return 50;
+  }
+  if (sets.length === 0 || sets.length > MAX_SETS) return -1;
+  if (!bothPlayersInWindow(text, pr.charIndex, p1, p2, 260)) return -1;
+
+  let score = 0;
+
+  if (pr.orphan) {
+    const wins = sets.filter((s) => s.won).length;
+    const losses = sets.length - wins;
+    if (wins <= losses) return -1;
+    score += 100;
+    const prevAbbrev = lastAbbrevScoreBefore(text, pr.charIndex, 90);
+    if (prevAbbrev) {
+      const winnerGuess = abbrevMatchesPlayer(prevAbbrev, p1.name)
+        ? p2
+        : abbrevMatchesPlayer(prevAbbrev, p2.name)
+          ? p1
+          : null;
+      if (winnerGuess) score += 30;
+    }
+    return score;
+  }
+
+  const winner = winnerFromAbbrevLine(pr, p1, p2);
+  const opponent = winner === p1 ? p2 : p1;
+  const tight = windowBefore(text, pr.charIndex, 120);
+  if (!windowHasPlayer(tight, opponent)) return -1;
+
+  const prevAbbrev = lastAbbrevScoreBefore(text, pr.charIndex, 90);
+  if (
+    prevAbbrev &&
+    abbrevMatchesPlayer(prevAbbrev, winner.name) &&
+    sets.length < 4
+  ) {
+    return -1;
+  }
+
+  score += 40;
+  if (windowHasPlayer(tight, opponent)) score += 20;
+  return score;
 }
 
 function findBestPdfResultForMatch(
@@ -147,51 +304,31 @@ function findBestPdfResultForMatch(
   player1: Player,
   player2: Player
 ): { index: number; winner: Player; parsed: PdfParsedResult } | null {
-  const candidates: number[] = [];
+  const ranked: MatchCandidate[] = [];
+
   for (let i = 0; i < pdfResults.length; i++) {
     if (used.has(i)) continue;
     const pr = pdfResults[i]!;
-    if (
-      abbrevMatchesPlayer(pr.abbrev, player1.name) ||
-      abbrevMatchesPlayer(pr.abbrev, player2.name)
-    ) {
-      candidates.push(i);
-    }
+    const s = scoreCandidate(pdfText, pr, player1, player2);
+    if (s >= 0) ranked.push({ index: i, score: s });
   }
 
-  if (candidates.length === 0) return null;
-  if (candidates.length === 1) {
-    const i = candidates[0]!;
-    const pr = pdfResults[i]!;
-    const winner = abbrevMatchesPlayer(pr.abbrev, player1.name) ? player1 : player2;
-    return { index: i, winner, parsed: pr };
+  if (ranked.length === 0) return null;
+
+  ranked.sort((a, b) => b.score - a.score);
+  const best = ranked[0]!;
+  const pr = pdfResults[best.index]!;
+
+  let winner: Player;
+  if (pr.orphan) {
+    winner = winnerFromOrphanScore(pdfText, pr, player1, player2) ?? player1;
+  } else if (pr.walkoverWin) {
+    winner = winnerFromAbbrevLine(pr, player1, player2);
+  } else {
+    winner = winnerFromAbbrevLine(pr, player1, player2);
   }
 
-  const scored: { index: number; score: number }[] = [];
-  for (const i of candidates) {
-    const pr = pdfResults[i]!;
-    const winner = abbrevMatchesPlayer(pr.abbrev, player1.name) ? player1 : player2;
-    const opponent = winner === player1 ? player2 : player1;
-    const window = contextWindow(pdfText, pr.charIndex);
-    let score = 0;
-    if (contextIncludesOpponent(window, opponent)) score += 10;
-    if (pr.walkoverWin) score += 3;
-    score += i / 1000;
-    scored.push({ index: i, score });
-  }
-
-  scored.sort((a, b) => b.score - a.score);
-  const best = scored[0]!;
-  if (best.score >= 10) {
-    const pr = pdfResults[best.index]!;
-    const winner = abbrevMatchesPlayer(pr.abbrev, player1.name) ? player1 : player2;
-    return { index: best.index, winner, parsed: pr };
-  }
-
-  const last = candidates[candidates.length - 1]!;
-  const pr = pdfResults[last]!;
-  const winner = abbrevMatchesPlayer(pr.abbrev, player1.name) ? player1 : player2;
-  return { index: last, winner, parsed: pr };
+  return { index: best.index, winner, parsed: pr };
 }
 
 export interface ApplyPdfReport {

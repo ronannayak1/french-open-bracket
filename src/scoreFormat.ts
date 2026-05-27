@@ -81,7 +81,7 @@ export function describeSet(set: ParsedSet, index: number): string {
     return `Set ${index + 1}: Lost ${set.loserGames}-${set.winnerGames} (tiebreak ${7}-${set.tiebreakLost})`;
   }
   if (set.won && set.tiebreakWon !== undefined) {
-    return `Set ${index + 1}: Won ${set.winnerGames}-${set.loserGames} (tiebreak ${set.tiebreakWon}-${set.loserGames})`;
+    return `Set ${index + 1}: Won ${set.winnerGames}-${set.loserGames} (tiebreak ${set.tiebreakWon}-6)`;
   }
   if (set.won) {
     return `Set ${index + 1}: Won ${set.winnerGames}-${set.loserGames}`;
