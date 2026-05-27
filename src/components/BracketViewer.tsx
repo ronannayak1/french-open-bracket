@@ -122,6 +122,7 @@ export default function BracketViewer({
       <Bracket
         matches={resolvedMatches}
         readOnly
+        userPicks={activeBracket.picks}
         officialResults={officialResults}
       />
     </div>

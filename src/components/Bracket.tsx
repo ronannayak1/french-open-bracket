@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Match, ROUND_LABELS, OfficialResult } from '../types';
-import { getMatchesByRound } from '../bracketEngine';
+import { getMatchesByRound, getEliminatedSlashKeys } from '../bracketEngine';
 import MatchCard from './MatchCard';
 
 function useCompactBracket() {
@@ -24,6 +24,8 @@ interface BracketProps {
   onPickWinner?: (matchId: string, playerName: string) => void;
   readOnly?: boolean;
   officialResults?: Record<string, OfficialResult>;
+  /** User picks — required with officialResults to show elimination slashes. */
+  userPicks?: Record<string, string>;
   showScores?: boolean;
 }
 
@@ -36,6 +38,7 @@ function RoundColumn({
   officialResults,
   showScores,
   compact,
+  eliminatedSlashKeys,
 }: {
   matches: Match[];
   round: number;
@@ -45,6 +48,7 @@ function RoundColumn({
   officialResults?: Record<string, OfficialResult>;
   showScores?: boolean;
   compact: boolean;
+  eliminatedSlashKeys?: Set<string>;
 }) {
   const baseUnit = compact ? 36 : 60;
   const roundIndex = round - 2;
@@ -69,6 +73,7 @@ function RoundColumn({
               compact={round >= 3}
               officialWinner={officialResults?.[match.id]?.winnerName}
               showScore={showScores}
+              eliminatedSlashKeys={eliminatedSlashKeys}
             />
             {round >= 2 && round <= 6 && (
               <Connector
@@ -128,9 +133,17 @@ export default function Bracket({
   onPickWinner,
   readOnly = false,
   officialResults,
+  userPicks,
   showScores = false,
 }: BracketProps) {
   const compactLayout = useCompactBracket();
+  const eliminatedSlashKeys = useMemo(() => {
+    if (!userPicks || !officialResults || Object.keys(officialResults).length === 0) {
+      return undefined;
+    }
+    return getEliminatedSlashKeys(userPicks, officialResults, matches);
+  }, [userPicks, officialResults, matches]);
+
   const byRound = getMatchesByRound(matches);
 
   const splitByHalf = (round: number, splitAt: number) => {
@@ -180,6 +193,7 @@ export default function Bracket({
             officialResults={officialResults}
             showScores={showScores}
             compact={compactLayout}
+            eliminatedSlashKeys={eliminatedSlashKeys}
           />
         ))}
 
@@ -196,6 +210,7 @@ export default function Bracket({
                     readOnly={readOnly}
                     officialWinner={officialResults?.[match.id]?.winnerName}
                     showScore={showScores}
+                    eliminatedSlashKeys={eliminatedSlashKeys}
                   />
                 </div>
               ))}
@@ -214,6 +229,7 @@ export default function Bracket({
                   readOnly={readOnly}
                   officialWinner={officialResults?.[match.id]?.winnerName}
                   showScore={showScores}
+                  eliminatedSlashKeys={eliminatedSlashKeys}
                 />
                 {match.winnerName && (
                   <div className="champion-label">
@@ -238,6 +254,7 @@ export default function Bracket({
                     readOnly={readOnly}
                     officialWinner={officialResults?.[match.id]?.winnerName}
                     showScore={showScores}
+                    eliminatedSlashKeys={eliminatedSlashKeys}
                   />
                 </div>
               ))}
@@ -255,6 +272,7 @@ export default function Bracket({
             officialResults={officialResults}
             showScores={showScores}
             compact={compactLayout}
+            eliminatedSlashKeys={eliminatedSlashKeys}
           />
         ))}
         </div>

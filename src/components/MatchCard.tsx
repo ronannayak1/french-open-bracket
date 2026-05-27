@@ -1,4 +1,5 @@
 import { Match, Player } from '../types';
+import { eliminatedSlashKey } from '../bracketEngine';
 
 interface MatchCardProps {
   match: Match;
@@ -9,6 +10,8 @@ interface MatchCardProps {
   officialWinner?: string;
   /** Show score below winner */
   showScore?: boolean;
+  /** Player slots that should show an elimination slash (official loss, user advanced). */
+  eliminatedSlashKeys?: Set<string>;
 }
 
 function PlayerSlot({
@@ -17,12 +20,14 @@ function PlayerSlot({
   canSelect,
   onSelect,
   verdict,
+  showEliminatedSlash,
 }: {
   player: Player | null;
   isWinner: boolean;
   canSelect: boolean;
   onSelect?: () => void;
   verdict?: 'correct' | 'incorrect' | 'official' | null;
+  showEliminatedSlash?: boolean;
 }) {
   if (!player) {
     return (
@@ -51,8 +56,12 @@ function PlayerSlot({
       title={player.name}
     >
       <span className="player-tag">{tag}</span>
-      <span className={`player-name ${isWinner ? 'player-name--bold' : ''}`}>
-        {player.name}
+      <span
+        className={`player-name-wrap ${showEliminatedSlash ? 'player-name-wrap--struck' : ''}`}
+      >
+        <span className={`player-name ${isWinner ? 'player-name--bold' : ''}`}>
+          {player.name}
+        </span>
       </span>
       <span className="player-country">{player.country}</span>
     </div>
@@ -66,6 +75,7 @@ export default function MatchCard({
   compact = false,
   officialWinner,
   showScore = false,
+  eliminatedSlashKeys,
 }: MatchCardProps) {
   const canPick = !readOnly && !!onPickWinner;
   const p1CanSelect = canPick && !!match.player1;
@@ -73,6 +83,11 @@ export default function MatchCard({
 
   const p1IsWinner = !!match.winnerName && match.player1?.name === match.winnerName;
   const p2IsWinner = !!match.winnerName && match.player2?.name === match.winnerName;
+
+  function isStruck(player: Player | null): boolean {
+    if (!player || !eliminatedSlashKeys) return false;
+    return eliminatedSlashKeys.has(eliminatedSlashKey(match.id, player.name));
+  }
 
   function getVerdict(player: Player | null, isPicked: boolean): 'correct' | 'incorrect' | 'official' | null {
     if (!officialWinner || !player) return null;
@@ -90,6 +105,7 @@ export default function MatchCard({
         canSelect={p1CanSelect}
         onSelect={() => onPickWinner?.(match.id, p1IsWinner ? '' : match.player1!.name)}
         verdict={getVerdict(match.player1, p1IsWinner)}
+        showEliminatedSlash={isStruck(match.player1)}
       />
       <div className="match-divider" />
       <PlayerSlot
@@ -98,6 +114,7 @@ export default function MatchCard({
         canSelect={p2CanSelect}
         onSelect={() => onPickWinner?.(match.id, p2IsWinner ? '' : match.player2!.name)}
         verdict={getVerdict(match.player2, p2IsWinner)}
+        showEliminatedSlash={isStruck(match.player2)}
       />
       {showScore && match.score && (
         <div className="match-score">{match.score}</div>

@@ -169,3 +169,55 @@ export function calculateScore(
 
   return { total, correct, decided };
 }
+
+/** Earliest round where each player officially lost (if any). */
+function getOfficialLossRoundByPlayer(
+  officialResults: Record<string, OfficialResult>
+): Map<string, number> {
+  const lossRound = new Map<string, number>();
+  for (const match of tournamentData) {
+    const official = officialResults[match.id];
+    if (!official?.winnerName) continue;
+    for (const p of [match.player1, match.player2]) {
+      if (p && p.name !== official.winnerName) {
+        const prev = lossRound.get(p.name);
+        if (prev === undefined || match.round < prev) {
+          lossRound.set(p.name, match.round);
+        }
+      }
+    }
+  }
+  return lossRound;
+}
+
+export function eliminatedSlashKey(matchId: string, playerName: string): string {
+  return `${matchId}|${playerName}`;
+}
+
+/**
+ * Slots where a player officially lost but still appears because the user
+ * picked them to advance (including the loss match if they were picked as winner).
+ */
+export function getEliminatedSlashKeys(
+  picks: Record<string, string>,
+  officialResults: Record<string, OfficialResult>,
+  resolvedMatches: Match[]
+): Set<string> {
+  const lossRound = getOfficialLossRoundByPlayer(officialResults);
+  if (lossRound.size === 0) return new Set();
+
+  const keys = new Set<string>();
+  for (const match of resolvedMatches) {
+    for (const p of [match.player1, match.player2]) {
+      if (!p) continue;
+      const lr = lossRound.get(p.name);
+      if (lr === undefined) continue;
+      if (match.round > lr) {
+        keys.add(eliminatedSlashKey(match.id, p.name));
+      } else if (match.round === lr && picks[match.id] === p.name) {
+        keys.add(eliminatedSlashKey(match.id, p.name));
+      }
+    }
+  }
+  return keys;
+}

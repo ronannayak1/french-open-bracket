@@ -285,6 +285,8 @@ export default function App() {
             matches={resolvedMatches}
             onPickWinner={handlePickWinner}
             readOnly={bracketReadOnly}
+            userPicks={picks}
+            officialResults={officialResults}
           />
         </main>
       )}
