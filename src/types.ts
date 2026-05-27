@@ -61,4 +61,5 @@ export const USER_ACCOUNTS: UserAccount[] = [
   { id: 'S', defaultName: 'S', password: 'roland2' },
   { id: 'M', defaultName: 'M', password: 'roland3' },
   { id: 'T', defaultName: 'T', password: 'roland4' },
+  { id: 'M2', defaultName: 'M2', password: 'roland5' },
 ];
