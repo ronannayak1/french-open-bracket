@@ -1,10 +1,12 @@
 const LOGO_SRC = `${import.meta.env.BASE_URL}roland-garros-logo.png`;
 
+/** Source image is 1024×682 */
+const LOGO_ASPECT = 1024 / 682;
+
 interface BrandLogoProps {
-  /** Visual size in CSS pixels (width & height). */
-  size?: number;
+  /** Display height in CSS pixels; width follows image aspect ratio. */
+  height?: number;
   className?: string;
-  /** Short label for screen readers when the logo is decorative alongside text. */
   alt?: string;
 }
 
@@ -13,17 +15,20 @@ export function logoSrc(): string {
 }
 
 export default function BrandLogo({
-  size = 40,
+  height = 40,
   className = '',
   alt = 'Roland-Garros',
 }: BrandLogoProps) {
+  const width = Math.round(height * LOGO_ASPECT);
+
   return (
     <img
       src={LOGO_SRC}
       alt={alt}
       className={`brand-logo ${className}`.trim()}
-      width={size}
-      height={size}
+      width={width}
+      height={height}
+      style={{ height: `${height}px`, width: 'auto' }}
       decoding="async"
     />
   );

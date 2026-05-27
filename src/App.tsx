@@ -167,7 +167,7 @@ export default function App() {
       <nav className="app-nav">
         <div className="nav-inner">
           <div className="nav-brand">
-            <BrandLogo size={36} className="nav-brand-logo" />
+            <BrandLogo height={40} className="nav-brand-logo" />
             <div className="nav-brand-text">
               <h1>
                 <span className="nav-brand-rg">ROLAND-GARROS</span>{' '}

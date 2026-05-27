@@ -75,16 +75,20 @@ body {
 
 .brand-logo {
   display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
   object-fit: contain;
   flex-shrink: 0;
+  aspect-ratio: 1024 / 682;
 }
 
 .login-logo { margin-bottom: 24px; }
 
 .login-logo-img {
   margin: 0 auto 16px;
-  width: 88px;
-  height: 88px;
+  height: 100px;
+  width: auto;
 }
 
 .login-logo h1 {
@@ -227,8 +231,8 @@ body {
 }
 
 .nav-brand-logo {
-  width: 36px;
-  height: 36px;
+  height: 40px;
+  width: auto;
 }
 
 .nav-brand-text {
@@ -1218,8 +1222,8 @@ body {
   }
 
   .nav-brand-logo {
-    width: 44px;
-    height: 44px;
+    height: 48px;
+    width: auto;
   }
 
   .nav-brand-text h1 {
@@ -1484,8 +1488,8 @@ body {
 
   /* Login */
   .login-logo-img {
-    width: 96px;
-    height: 96px;
+    height: 112px;
+    width: auto;
   }
 
   .login-card {
@@ -1511,8 +1515,8 @@ body {
 
 @media (max-width: 380px) {
   .nav-brand-logo {
-    width: 40px;
-    height: 40px;
+    height: 44px;
+    width: auto;
   }
 
   .round-column {
