@@ -631,8 +631,8 @@ body {
   right: 0;
   top: 50%;
   height: 1px;
+  margin-top: -0.5px;
   background: #e74c3c;
-  transform: rotate(-12deg);
   pointer-events: none;
   z-index: 1;
 }
