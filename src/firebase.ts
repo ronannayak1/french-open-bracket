@@ -9,13 +9,13 @@ import {
 import { UserBracket, OfficialResult } from './types';
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyCGDOKVi5-dlS_VClMEyKpl7_AQLrF3qr4',
-  authDomain: 'aopool.firebaseapp.com',
-  databaseURL: 'https://aopool-default-rtdb.firebaseio.com',
-  projectId: 'aopool',
-  storageBucket: 'aopool.firebasestorage.app',
-  messagingSenderId: '1047771739023',
-  appId: '1:1047771739023:web:603e3ced5b2932e49851fa',
+  apiKey: 'AIzaSyAmGflQbDLB_li65J6KYRisp7JjfsB2hiI',
+  authDomain: 'aopool-2a0a5.firebaseapp.com',
+  databaseURL: 'https://aopool-2a0a5-default-rtdb.firebaseio.com',
+  projectId: 'aopool-2a0a5',
+  storageBucket: 'aopool-2a0a5.firebasestorage.app',
+  messagingSenderId: '800811470720',
+  appId: '1:800811470720:web:1f5036ece9d91c1ebf3b65',
 };
 
 const app = initializeApp(firebaseConfig);
