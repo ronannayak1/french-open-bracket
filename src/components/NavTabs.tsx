@@ -8,7 +8,7 @@ interface NavTabsProps {
 }
 
 const TABS: { id: Page; label: string; short: string }[] = [
-  { id: 'bracket', label: 'My Bracket', short: 'Mine' },
+  { id: 'bracket', label: 'My Bracket', short: 'You' },
   { id: 'leaderboard', label: 'Leaderboard', short: 'Board' },
   { id: 'official', label: 'Official', short: 'Official' },
   { id: 'view', label: 'Brackets', short: 'All' },
