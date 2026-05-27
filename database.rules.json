@@ -1,0 +1,17 @@
+{
+  "rules": {
+    "frenchOpen2026": {
+      "brackets": {
+        ".read": true,
+        "$uid": {
+          ".read": true,
+          ".write": true
+        }
+      },
+      "official": {
+        ".read": true,
+        ".write": true
+      }
+    }
+  }
+}

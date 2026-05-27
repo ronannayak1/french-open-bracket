@@ -82,10 +82,26 @@ export async function updateDisplayName(
 
 // --- Official bracket results ---
 
+/** Firebase RTDB rejects undefined property values (e.g. optional score). */
+function sanitizeOfficialResults(
+  results: Record<string, OfficialResult>
+): Record<string, OfficialResult> {
+  const clean: Record<string, OfficialResult> = {};
+  for (const [matchId, r] of Object.entries(results)) {
+    if (!r?.winnerName) continue;
+    const entry: OfficialResult = { winnerName: r.winnerName };
+    if (r.score != null && r.score !== '') {
+      entry.score = r.score;
+    }
+    clean[matchId] = entry;
+  }
+  return clean;
+}
+
 export async function saveOfficialResults(
   results: Record<string, OfficialResult>
 ): Promise<void> {
-  await set(ref(db, OFFICIAL_PATH), results);
+  await set(ref(db, OFFICIAL_PATH), sanitizeOfficialResults(results));
 }
 
 export async function loadOfficialResults(): Promise<Record<string, OfficialResult>> {
