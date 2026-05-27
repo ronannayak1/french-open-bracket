@@ -9,6 +9,7 @@ import OfficialBracket from './components/OfficialBracket';
 import Leaderboard from './components/Leaderboard';
 import Countdown, { isLocked } from './components/Countdown';
 import NavTabs from './components/NavTabs';
+import BrandLogo from './components/BrandLogo';
 
 type Page = 'bracket' | 'view' | 'official' | 'leaderboard';
 
@@ -166,13 +167,16 @@ export default function App() {
       <nav className="app-nav">
         <div className="nav-inner">
           <div className="nav-brand">
-            <h1>
-              <span className="nav-brand-rg">ROLAND-GARROS</span>{' '}
-              <span className="nav-brand-accent">2026</span>
-            </h1>
-            <div className="nav-brand-sub">
-              <span className="status-dot" />
-              Bracket Challenge
+            <BrandLogo size={36} className="nav-brand-logo" />
+            <div className="nav-brand-text">
+              <h1>
+                <span className="nav-brand-rg">ROLAND-GARROS</span>{' '}
+                <span className="nav-brand-accent">2026</span>
+              </h1>
+              <div className="nav-brand-sub">
+                <span className="status-dot" />
+                Bracket Challenge
+              </div>
             </div>
           </div>
 

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { USER_ACCOUNTS } from '../types';
+import BrandLogo from './BrandLogo';
 
 interface LoginProps {
   onLogin: (userId: string) => void;
@@ -26,7 +27,7 @@ export default function Login({ onLogin }: LoginProps) {
     <div className="login-screen">
       <div className="login-card">
         <div className="login-logo">
-          <span className="login-logo-ball">🎾</span>
+          <BrandLogo size={88} className="login-logo-img" />
           <h1>Roland-Garros 2026</h1>
           <h2>Bracket Challenge</h2>
         </div>

@@ -73,8 +73,19 @@ body {
   box-shadow: 0 24px 80px rgba(0,0,0,0.4);
 }
 
+.brand-logo {
+  display: block;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
 .login-logo { margin-bottom: 24px; }
-.login-logo-ball { font-size: 48px; display: block; margin-bottom: 12px; }
+
+.login-logo-img {
+  margin: 0 auto 16px;
+  width: 88px;
+  height: 88px;
+}
 
 .login-logo h1 {
   font-size: 24px;
@@ -206,6 +217,22 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 24px;
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.nav-brand-logo {
+  width: 36px;
+  height: 36px;
+}
+
+.nav-brand-text {
+  min-width: 0;
 }
 
 .nav-brand h1 { font-size: 16px; font-weight: 900; letter-spacing: -0.3px; }
@@ -1190,12 +1217,21 @@ body {
     gap: 8px;
   }
 
-  .nav-brand h1 {
-    font-size: 14px;
+  .nav-brand-logo {
+    width: 44px;
+    height: 44px;
+  }
+
+  .nav-brand-text h1 {
+    display: none;
   }
 
   .nav-brand-sub {
     display: none;
+  }
+
+  .nav-brand {
+    flex: 0 0 auto;
   }
 
   .nav-links--header {
@@ -1447,6 +1483,11 @@ body {
   }
 
   /* Login */
+  .login-logo-img {
+    width: 96px;
+    height: 96px;
+  }
+
   .login-card {
     margin: 16px;
     padding: 32px 24px;
@@ -1469,8 +1510,9 @@ body {
 }
 
 @media (max-width: 380px) {
-  .nav-brand h1 {
-    font-size: 12px;
+  .nav-brand-logo {
+    width: 40px;
+    height: 40px;
   }
 
   .round-column {
