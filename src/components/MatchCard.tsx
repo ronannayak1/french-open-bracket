@@ -88,7 +88,7 @@ export default function MatchCard({
         player={match.player1}
         isWinner={p1IsWinner}
         canSelect={p1CanSelect}
-        onSelect={() => onPickWinner?.(match.id, match.player1!.name)}
+        onSelect={() => onPickWinner?.(match.id, p1IsWinner ? '' : match.player1!.name)}
         verdict={getVerdict(match.player1, p1IsWinner)}
       />
       <div className="match-divider" />
@@ -96,7 +96,7 @@ export default function MatchCard({
         player={match.player2}
         isWinner={p2IsWinner}
         canSelect={p2CanSelect}
-        onSelect={() => onPickWinner?.(match.id, match.player2!.name)}
+        onSelect={() => onPickWinner?.(match.id, p2IsWinner ? '' : match.player2!.name)}
         verdict={getVerdict(match.player2, p2IsWinner)}
       />
       {showScore && match.score && (

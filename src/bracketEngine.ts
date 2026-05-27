@@ -115,6 +115,24 @@ function clearDownstream(
   }
 }
 
+/**
+ * Remove a deselected player from all downstream matches.
+ */
+export function clearDownstreamPicks(
+  picks: Record<string, string>,
+  matchId: string,
+  removedPlayer: string
+): void {
+  const matchMap = new Map<string, Match>();
+  for (const m of tournamentData) {
+    matchMap.set(m.id, m);
+  }
+  const match = matchMap.get(matchId);
+  if (match?.nextMatchId) {
+    clearDownstream(picks, match.nextMatchId, removedPlayer, matchMap);
+  }
+}
+
 export function getMatchesByRound(matches: Match[]): Map<number, Match[]> {
   const byRound = new Map<number, Match[]>();
   for (const m of matches) {

@@ -1,13 +1,15 @@
 import { useState, useEffect, useCallback } from 'react';
 import { UserBracket, OfficialResult, USER_ACCOUNTS } from './types';
-import { resolveBracket, cascadeClear, getTotalPicksNeeded, calculateScore } from './bracketEngine';
+import { resolveBracket, cascadeClear, clearDownstreamPicks, getTotalPicksNeeded, calculateScore } from './bracketEngine';
 import { saveBracket, loadBracket, onBracketsChange, onOfficialChange, updateDisplayName } from './firebase';
 import Login from './components/Login';
 import Bracket from './components/Bracket';
 import BracketViewer from './components/BracketViewer';
 import OfficialBracket from './components/OfficialBracket';
+import Leaderboard from './components/Leaderboard';
+import Countdown, { isLocked } from './components/Countdown';
 
-type Page = 'bracket' | 'view' | 'official';
+type Page = 'bracket' | 'view' | 'official' | 'leaderboard';
 
 export default function App() {
   const [userId, setUserId] = useState<string | null>(() =>
@@ -22,6 +24,12 @@ export default function App() {
   const [saving, setSaving] = useState(false);
   const [editingName, setEditingName] = useState(false);
   const [nameInput, setNameInput] = useState('');
+  const [locked, setLocked] = useState(isLocked());
+
+  useEffect(() => {
+    const id = setInterval(() => setLocked(isLocked()), 1000);
+    return () => clearInterval(id);
+  }, []);
 
   useEffect(() => {
     const unsub = onBracketsChange(setAllBrackets);
@@ -50,6 +58,8 @@ export default function App() {
     });
   }, [userId]);
 
+  const bracketReadOnly = submitted || locked;
+
   const handleLogin = useCallback((id: string) => {
     setUserId(id);
     localStorage.setItem('rg_user', id);
@@ -65,28 +75,37 @@ export default function App() {
 
   const handlePickWinner = useCallback(
     (matchId: string, playerName: string) => {
-      if (submitted) return;
+      if (bracketReadOnly) return;
       setPicks((prev) => {
+        if (!playerName) {
+          const oldWinner = prev[matchId];
+          const next = { ...prev };
+          delete next[matchId];
+          if (oldWinner) {
+            clearDownstreamPicks(next, matchId, oldWinner);
+          }
+          return next;
+        }
         let next = cascadeClear(prev, matchId, playerName);
         next = { ...next, [matchId]: playerName };
         return next;
       });
     },
-    [submitted]
+    [bracketReadOnly]
   );
 
   const handleSave = useCallback(async () => {
-    if (!userId) return;
+    if (!userId || locked) return;
     setSaving(true);
     try {
       await saveBracket({ userId, displayName, picks, submitted: false });
     } finally {
       setSaving(false);
     }
-  }, [userId, displayName, picks]);
+  }, [userId, displayName, picks, locked]);
 
   const handleSubmit = useCallback(async () => {
-    if (!userId) return;
+    if (!userId || locked) return;
     const totalNeeded = getTotalPicksNeeded();
     const totalPicked = Object.keys(picks).length;
     if (totalPicked < totalNeeded) {
@@ -108,10 +127,10 @@ export default function App() {
     } finally {
       setSaving(false);
     }
-  }, [userId, displayName, picks]);
+  }, [userId, displayName, picks, locked]);
 
   const handleReset = useCallback(async () => {
-    if (!userId) return;
+    if (!userId || locked) return;
     if (!window.confirm('Clear all your picks and start over?')) return;
     setPicks({});
     setSubmitted(false);
@@ -121,7 +140,7 @@ export default function App() {
     } finally {
       setSaving(false);
     }
-  }, [userId, displayName]);
+  }, [userId, displayName, locked]);
 
   const handleSaveName = useCallback(async () => {
     if (!userId || !nameInput.trim()) return;
@@ -155,6 +174,9 @@ export default function App() {
               Bracket Challenge
             </div>
           </div>
+
+          <Countdown />
+
           <div className="nav-links">
             <button
               className={`nav-link ${page === 'bracket' ? 'nav-link--active' : ''}`}
@@ -163,16 +185,22 @@ export default function App() {
               My Bracket
             </button>
             <button
+              className={`nav-link ${page === 'leaderboard' ? 'nav-link--active' : ''}`}
+              onClick={() => setPage('leaderboard')}
+            >
+              Leaderboard
+            </button>
+            <button
               className={`nav-link ${page === 'official' ? 'nav-link--active' : ''}`}
               onClick={() => setPage('official')}
             >
-              Official Bracket
+              Official
             </button>
             <button
               className={`nav-link ${page === 'view' ? 'nav-link--active' : ''}`}
               onClick={() => setPage('view')}
             >
-              View Brackets
+              Brackets
               {submittedCount > 0 && (
                 <span className="nav-badge">{submittedCount}</span>
               )}
@@ -232,26 +260,29 @@ export default function App() {
               {submitted && (
                 <span className="toolbar-submitted">Submitted</span>
               )}
+              {locked && !submitted && (
+                <span className="toolbar-locked">Locked</span>
+              )}
             </div>
             <div className="toolbar-actions">
               <button
                 className="btn btn--secondary"
                 onClick={handleSave}
-                disabled={saving || submitted}
+                disabled={saving || bracketReadOnly}
               >
                 {saving ? 'Saving...' : 'Save Draft'}
               </button>
               <button
                 className="btn btn--primary"
                 onClick={handleSubmit}
-                disabled={saving || submitted}
+                disabled={saving || bracketReadOnly}
               >
-                {submitted ? 'Submitted' : 'Submit Bracket'}
+                {submitted ? 'Submitted' : locked ? 'Locked' : 'Submit Bracket'}
               </button>
               <button
                 className="btn btn--danger"
                 onClick={handleReset}
-                disabled={saving}
+                disabled={saving || locked}
               >
                 Reset
               </button>
@@ -261,7 +292,17 @@ export default function App() {
           <Bracket
             matches={resolvedMatches}
             onPickWinner={handlePickWinner}
-            readOnly={submitted}
+            readOnly={bracketReadOnly}
+          />
+        </main>
+      )}
+
+      {page === 'leaderboard' && (
+        <main className="main-content">
+          <Leaderboard
+            brackets={allBrackets}
+            officialResults={officialResults}
+            currentUserId={userId}
           />
         </main>
       )}
