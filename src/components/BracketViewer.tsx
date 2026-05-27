@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { UserBracket, OfficialResult, ROUND_POINTS } from '../types';
-import { resolveBracket, calculateScore } from '../bracketEngine';
+import { resolveBracket, scoreBracketForLeaderboard, getTournamentMaxPoints } from '../bracketEngine';
 import Bracket from './Bracket';
 import BracketPointsBanner from './BracketPointsBanner';
 
@@ -21,11 +21,10 @@ export default function BracketViewer({
   const hasOfficialResults = Object.keys(officialResults).length > 0;
 
   const scored = submittedBrackets
-    .map((b) => ({
-      bracket: b,
-      score: calculateScore(b.picks, officialResults),
-    }))
+    .map((b) => scoreBracketForLeaderboard(b, officialResults))
     .sort((a, b) => b.score.total - a.score.total);
+
+  const tournamentMax = getTournamentMaxPoints();
 
   if (submittedBrackets.length === 0) {
     return (
@@ -44,9 +43,6 @@ export default function BracketViewer({
   const activeBracket = activeEntry.bracket;
   const resolvedMatches = resolveBracket(activeBracket.picks);
 
-  const maxPoints =
-    1 * 32 + 2 * 16 + 4 * 8 + 8 * 4 + 16 * 2 + 32 * 1;
-
   return (
     <div className="viewer-container">
       {/* Leaderboard */}
@@ -58,6 +54,7 @@ export default function BracketViewer({
             <span className="lb-name">Name</span>
             <span className="lb-correct">Correct</span>
             <span className="lb-pts">Points</span>
+            <span className="lb-max-col">Max</span>
           </div>
           {scored.map((entry, i) => (
             <div
@@ -78,10 +75,14 @@ export default function BracketViewer({
                 {entry.score.correct}/{entry.score.decided}
               </span>
               <span className="lb-pts">{entry.score.total}</span>
+              <span className="lb-max-col">
+                {entry.maxPossible}
+                <span className="lb-max-col-of">/{tournamentMax}</span>
+              </span>
             </div>
           ))}
           <div className="leaderboard-footer">
-            Max possible: {maxPoints} pts
+            Tournament max: {tournamentMax} pts
             <span className="lb-legend">
               Scoring: {Object.entries(ROUND_POINTS).map(([r, p]) => `R${r}=${p}`).join(', ')}
             </span>

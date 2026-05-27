@@ -1,4 +1,4 @@
-import { Match, Player, OfficialResult, ROUND_POINTS } from './types';
+import { Match, Player, OfficialResult, ROUND_POINTS, UserBracket } from './types';
 import { tournamentData } from './data';
 
 /**
@@ -320,4 +320,21 @@ export function calculateEliminatedPointsLost(
   }
 
   return lost;
+}
+
+export function scoreBracketForLeaderboard(
+  bracket: UserBracket,
+  officialResults: Record<string, OfficialResult>
+) {
+  const resolvedMatches = resolveBracket(bracket.picks);
+  return {
+    bracket,
+    score: calculateScore(bracket.picks, officialResults),
+    maxPossible: calculateMaxPointsPossible(
+      bracket.picks,
+      officialResults,
+      resolvedMatches
+    ),
+    tournamentMax: getTournamentMaxPoints(),
+  };
 }

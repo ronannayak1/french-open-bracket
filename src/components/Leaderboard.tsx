@@ -1,5 +1,5 @@
 import { UserBracket, OfficialResult, ROUND_LABELS, ROUND_POINTS } from '../types';
-import { calculateScore } from '../bracketEngine';
+import { scoreBracketForLeaderboard, getTournamentMaxPoints } from '../bracketEngine';
 import { tournamentData } from '../data';
 
 interface LeaderboardProps {
@@ -17,11 +17,10 @@ export default function Leaderboard({
   const hasOfficial = Object.keys(officialResults).length > 0;
 
   const scored = allUsers
-    .map((b) => ({
-      bracket: b,
-      score: calculateScore(b.picks, officialResults),
-    }))
+    .map((b) => scoreBracketForLeaderboard(b, officialResults))
     .sort((a, b) => b.score.total - a.score.total);
+
+  const tournamentMax = getTournamentMaxPoints();
 
   const rounds = [2, 3, 4, 5, 6, 7] as const;
 
@@ -41,8 +40,6 @@ export default function Leaderboard({
     }
     return { correct, total, points: correct * (ROUND_POINTS[round] ?? 0) };
   }
-
-  const maxPoints = 1 * 32 + 2 * 16 + 4 * 8 + 8 * 4 + 16 * 2 + 32 * 1;
 
   if (allUsers.length === 0) {
     return (
@@ -81,11 +78,21 @@ export default function Leaderboard({
                 </div>
                 <div className="lb-card-stats">
                   {entry.score.correct}/{entry.score.decided} correct picks
+                  <span className="lb-card-stats-sep"> · </span>
+                  <span className="lb-card-max-stat">
+                    Max possible: {entry.maxPossible}/{tournamentMax}
+                  </span>
                 </div>
               </div>
               <div className="lb-card-points">
-                <span className="lb-card-pts-num">{entry.score.total}</span>
-                <span className="lb-card-pts-label">pts</span>
+                <div className="lb-card-points-row">
+                  <span className="lb-card-pts-num">{entry.score.total}</span>
+                  <span className="lb-card-pts-label">pts</span>
+                </div>
+                <div className="lb-card-points-row lb-card-points-row--max">
+                  <span className="lb-card-max-num">{entry.maxPossible}</span>
+                  <span className="lb-card-max-label">max</span>
+                </div>
               </div>
             </div>
           );
@@ -107,6 +114,7 @@ export default function Leaderboard({
                       <div className="lb-th-pts">{ROUND_POINTS[r]} pt{ROUND_POINTS[r] > 1 ? 's' : ''}/ea</div>
                     </th>
                   ))}
+                  <th className="lb-th-max">Max poss.</th>
                   <th className="lb-th-total">Total</th>
                 </tr>
               </thead>
@@ -131,13 +139,17 @@ export default function Leaderboard({
                         </td>
                       );
                     })}
+                    <td className="lb-td-max">
+                      {entry.maxPossible}
+                      <span className="lb-td-max-of">/{tournamentMax}</span>
+                    </td>
                     <td className="lb-td-total">{entry.score.total}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          <div className="lb-max">Max possible: {maxPoints} pts</div>
+          <div className="lb-max">Tournament max: {tournamentMax} pts per bracket</div>
         </div>
       )}
     </div>

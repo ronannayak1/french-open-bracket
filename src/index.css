@@ -925,7 +925,7 @@ body {
 
 .leaderboard-header {
   display: grid;
-  grid-template-columns: 36px 1fr 80px 70px;
+  grid-template-columns: 36px 1fr 72px 64px 72px;
   gap: 8px;
   padding: 4px 8px;
   font-size: 9px;
@@ -939,7 +939,7 @@ body {
 
 .leaderboard-row {
   display: grid;
-  grid-template-columns: 36px 1fr 80px 70px;
+  grid-template-columns: 36px 1fr 72px 64px 72px;
   gap: 8px;
   padding: 8px;
   border-radius: 6px;
@@ -960,6 +960,20 @@ body {
   color: var(--gold);
   text-align: right;
   font-variant-numeric: tabular-nums;
+}
+
+.lb-max-col {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.lb-max-col-of {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
 }
 
 .leaderboard-footer {
@@ -1153,6 +1167,20 @@ body {
 
 .lb-card-points {
   text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.lb-card-points-row {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.lb-card-points-row--max {
+  opacity: 0.9;
 }
 
 .lb-card-pts-num {
@@ -1160,6 +1188,7 @@ body {
   font-weight: 900;
   color: var(--gold);
   font-variant-numeric: tabular-nums;
+  line-height: 1;
 }
 
 .lb-card-pts-label {
@@ -1167,7 +1196,46 @@ body {
   font-weight: 700;
   color: var(--text-muted);
   text-transform: uppercase;
-  margin-left: 4px;
+}
+
+.lb-card-max-num {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.lb-card-max-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.lb-card-max-stat {
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.lb-card-stats-sep {
+  color: var(--text-muted);
+}
+
+.lb-th-max {
+  color: var(--text-secondary);
+}
+
+.lb-td-max {
+  font-weight: 700;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.lb-td-max-of {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
 }
 
 /* Breakdown table */
