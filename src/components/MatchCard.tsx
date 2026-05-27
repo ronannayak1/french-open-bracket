@@ -12,6 +12,8 @@ interface MatchCardProps {
   showScore?: boolean;
   /** Player slots that should show an elimination slash (official loss, user advanced). */
   eliminatedSlashKeys?: Set<string>;
+  /** Click match to open score detail (official bracket view mode) */
+  onViewScore?: (matchId: string) => void;
 }
 
 function PlayerSlot({
@@ -76,8 +78,10 @@ export default function MatchCard({
   officialWinner,
   showScore = false,
   eliminatedSlashKeys,
+  onViewScore,
 }: MatchCardProps) {
   const canPick = !readOnly && !!onPickWinner;
+  const canViewScore = readOnly && !!match.score && !!onViewScore;
   const p1CanSelect = canPick && !!match.player1;
   const p2CanSelect = canPick && !!match.player2;
 
@@ -98,7 +102,11 @@ export default function MatchCard({
   }
 
   return (
-    <div className={`match-card ${compact ? 'match-card--compact' : ''}`}>
+    <div
+      className={`match-card ${compact ? 'match-card--compact' : ''} ${canViewScore ? 'match-card--view-score' : ''}`}
+      onClick={canViewScore ? () => onViewScore!(match.id) : undefined}
+      title={canViewScore ? 'View match score' : undefined}
+    >
       <PlayerSlot
         player={match.player1}
         isWinner={p1IsWinner}
@@ -117,7 +125,10 @@ export default function MatchCard({
         showEliminatedSlash={isStruck(match.player2)}
       />
       {showScore && match.score && (
-        <div className="match-score">{match.score}</div>
+        <div className="match-score">
+          {match.score}
+          {canViewScore && <span className="match-score-hint"> Tap for details</span>}
+        </div>
       )}
     </div>
   );

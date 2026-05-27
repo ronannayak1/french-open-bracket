@@ -27,6 +27,7 @@ interface BracketProps {
   /** User picks — required with officialResults to show elimination slashes. */
   userPicks?: Record<string, string>;
   showScores?: boolean;
+  onViewScore?: (matchId: string) => void;
 }
 
 function RoundColumn({
@@ -39,6 +40,7 @@ function RoundColumn({
   showScores,
   compact,
   eliminatedSlashKeys,
+  onViewScore,
 }: {
   matches: Match[];
   round: number;
@@ -49,6 +51,7 @@ function RoundColumn({
   showScores?: boolean;
   compact: boolean;
   eliminatedSlashKeys?: Set<string>;
+  onViewScore?: (matchId: string) => void;
 }) {
   const baseUnit = compact ? 36 : 60;
   const roundIndex = round - 2;
@@ -74,6 +77,7 @@ function RoundColumn({
               officialWinner={officialResults?.[match.id]?.winnerName}
               showScore={showScores}
               eliminatedSlashKeys={eliminatedSlashKeys}
+              onViewScore={onViewScore}
             />
             {round >= 2 && round <= 6 && (
               <Connector
@@ -135,6 +139,7 @@ export default function Bracket({
   officialResults,
   userPicks,
   showScores = false,
+  onViewScore,
 }: BracketProps) {
   const compactLayout = useCompactBracket();
   const eliminatedSlashKeys = useMemo(() => {
@@ -194,6 +199,7 @@ export default function Bracket({
             showScores={showScores}
             compact={compactLayout}
             eliminatedSlashKeys={eliminatedSlashKeys}
+            onViewScore={onViewScore}
           />
         ))}
 
@@ -211,6 +217,7 @@ export default function Bracket({
                     officialWinner={officialResults?.[match.id]?.winnerName}
                     showScore={showScores}
                     eliminatedSlashKeys={eliminatedSlashKeys}
+                    onViewScore={onViewScore}
                   />
                 </div>
               ))}
@@ -230,6 +237,7 @@ export default function Bracket({
                   officialWinner={officialResults?.[match.id]?.winnerName}
                   showScore={showScores}
                   eliminatedSlashKeys={eliminatedSlashKeys}
+                  onViewScore={onViewScore}
                 />
                 {match.winnerName && (
                   <div className="champion-label">
@@ -255,6 +263,7 @@ export default function Bracket({
                     officialWinner={officialResults?.[match.id]?.winnerName}
                     showScore={showScores}
                     eliminatedSlashKeys={eliminatedSlashKeys}
+                    onViewScore={onViewScore}
                   />
                 </div>
               ))}
@@ -273,6 +282,7 @@ export default function Bracket({
             showScores={showScores}
             compact={compactLayout}
             eliminatedSlashKeys={eliminatedSlashKeys}
+            onViewScore={onViewScore}
           />
         ))}
         </div>
