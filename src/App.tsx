@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { UserBracket, OfficialResult, USER_ACCOUNTS } from './types';
 import { resolveBracket, cascadeClear, clearDownstreamPicks, getTotalPicksNeeded, calculateScore } from './bracketEngine';
+import BracketPointsBanner from './components/BracketPointsBanner';
 import { saveBracket, loadBracket, onBracketsChange, onOfficialChange, updateDisplayName } from './firebase';
 import Login from './components/Login';
 import Bracket from './components/Bracket';
@@ -280,6 +281,13 @@ export default function App() {
               </button>
             </div>
           </div>
+
+          <BracketPointsBanner
+            picks={picks}
+            officialResults={officialResults}
+            resolvedMatches={resolvedMatches}
+            currentPoints={myScore.decided > 0 ? myScore.total : undefined}
+          />
 
           <Bracket
             matches={resolvedMatches}

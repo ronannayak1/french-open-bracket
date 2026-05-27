@@ -221,3 +221,103 @@ export function getEliminatedSlashKeys(
   }
   return keys;
 }
+
+/** Sum of ROUND_POINTS across every match in the draw. */
+export function getTournamentMaxPoints(): number {
+  let total = 0;
+  for (const match of tournamentData) {
+    total += ROUND_POINTS[match.round] ?? 0;
+  }
+  return total;
+}
+
+/**
+ * Best-case total points still available given official results and the user's
+ * bracket (including points lost from eliminated players carried forward).
+ */
+export function calculateMaxPointsPossible(
+  picks: Record<string, string>,
+  officialResults: Record<string, OfficialResult>,
+  resolvedMatches: Match[]
+): number {
+  const slashKeys = getEliminatedSlashKeys(picks, officialResults, resolvedMatches);
+  let max = 0;
+
+  for (const match of resolvedMatches) {
+    const pts = ROUND_POINTS[match.round] ?? 0;
+    if (!pts) continue;
+
+    const official = officialResults[match.id];
+    if (official?.winnerName) {
+      if (picks[match.id] === official.winnerName) {
+        max += pts;
+      }
+      continue;
+    }
+
+    const pick = picks[match.id];
+    if (pick) {
+      if (!slashKeys.has(eliminatedSlashKey(match.id, pick))) {
+        max += pts;
+      }
+      continue;
+    }
+
+    const p1 = match.player1;
+    const p2 = match.player2;
+    const p1Ghost =
+      !!p1 && slashKeys.has(eliminatedSlashKey(match.id, p1.name));
+    const p2Ghost =
+      !!p2 && slashKeys.has(eliminatedSlashKey(match.id, p2.name));
+
+    if (p1Ghost && p2Ghost) continue;
+    if (p1 || p2) max += pts;
+  }
+
+  return max;
+}
+
+/** Points from undecided/decided matches blocked by eliminated (ghost) picks. */
+export function calculateEliminatedPointsLost(
+  picks: Record<string, string>,
+  officialResults: Record<string, OfficialResult>,
+  resolvedMatches: Match[]
+): number {
+  const slashKeys = getEliminatedSlashKeys(picks, officialResults, resolvedMatches);
+  if (slashKeys.size === 0) return 0;
+
+  let lost = 0;
+  for (const match of resolvedMatches) {
+    const pts = ROUND_POINTS[match.round] ?? 0;
+    if (!pts) continue;
+
+    const official = officialResults[match.id];
+    const pick = picks[match.id];
+
+    if (official?.winnerName) {
+      if (
+        pick &&
+        pick !== official.winnerName &&
+        slashKeys.has(eliminatedSlashKey(match.id, pick))
+      ) {
+        lost += pts;
+      }
+      continue;
+    }
+
+    if (pick && slashKeys.has(eliminatedSlashKey(match.id, pick))) {
+      lost += pts;
+      continue;
+    }
+
+    const p1 = match.player1;
+    const p2 = match.player2;
+    const p1Ghost =
+      !!p1 && slashKeys.has(eliminatedSlashKey(match.id, p1.name));
+    const p2Ghost =
+      !!p2 && slashKeys.has(eliminatedSlashKey(match.id, p2.name));
+    if (p1Ghost && p2Ghost) lost += pts;
+  }
+
+  return lost;
+}

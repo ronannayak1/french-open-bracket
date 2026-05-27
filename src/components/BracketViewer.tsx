@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { UserBracket, OfficialResult, ROUND_POINTS } from '../types';
 import { resolveBracket, calculateScore } from '../bracketEngine';
 import Bracket from './Bracket';
+import BracketPointsBanner from './BracketPointsBanner';
 
 interface BracketViewerProps {
   brackets: UserBracket[];
@@ -119,6 +120,14 @@ export default function BracketViewer({
           )}
         </div>
       </div>
+
+      <BracketPointsBanner
+        picks={activeBracket.picks}
+        officialResults={officialResults}
+        resolvedMatches={resolvedMatches}
+        currentPoints={hasOfficialResults ? activeEntry.score.total : undefined}
+      />
+
       <Bracket
         matches={resolvedMatches}
         readOnly

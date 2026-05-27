@@ -429,6 +429,68 @@ body {
 
 .toolbar-actions { display: flex; gap: 8px; }
 
+/* ================================================================
+   BRACKET POINTS BANNER (max possible)
+   ================================================================ */
+.bracket-points-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 20px;
+  margin-bottom: 16px;
+  padding: 14px 18px;
+  background: linear-gradient(135deg, rgba(241, 196, 15, 0.08) 0%, var(--bg-secondary) 100%);
+  border: 1px solid rgba(241, 196, 15, 0.25);
+  border-radius: 10px;
+}
+
+.bracket-points-banner-main {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.bracket-points-banner-label {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-secondary);
+}
+
+.bracket-points-banner-value {
+  font-size: 26px;
+  font-weight: 900;
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.bracket-points-banner-of {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.bracket-points-banner-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  font-size: 12px;
+}
+
+.bracket-points-banner-current {
+  font-weight: 600;
+  color: var(--green);
+}
+
+.bracket-points-banner-lost {
+  font-weight: 600;
+  color: #e74c3c;
+}
+
 .btn {
   border: none;
   font-size: 12px;
@@ -1364,6 +1426,16 @@ body {
 
   .toolbar-actions .btn--danger {
     grid-column: 1 / -1;
+  }
+
+  .bracket-points-banner {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 12px 14px;
+  }
+
+  .bracket-points-banner-value {
+    font-size: 22px;
   }
 
   .btn {
