@@ -48,7 +48,7 @@ function PlayerSlot({
     <div
       className={`player-slot ${isWinner ? 'player-slot--winner' : ''} ${canSelect ? 'player-slot--selectable' : ''} ${verdictClass}`}
       onClick={canSelect ? onSelect : undefined}
-      title={canSelect ? `Pick ${player.name}` : undefined}
+      title={player.name}
     >
       <span className="player-tag">{tag}</span>
       <span className={`player-name ${isWinner ? 'player-name--bold' : ''}`}>
