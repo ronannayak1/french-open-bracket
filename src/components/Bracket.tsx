@@ -62,7 +62,7 @@ function RoundColumn({
   eliminatedSlashKeys?: Set<string>;
   onViewScore?: (matchId: string) => void;
 }) {
-  const { cardHeight, slotHeight } = getBracketHeights(compact, showScores);
+  const { cardHeight, slotHeight } = getBracketHeights(compact, !!showScores);
   const columnHeight = getColumnHeight(matches.length, round, slotHeight);
   const blockSize = getBlockSize(round, slotHeight);
 
