@@ -52,6 +52,19 @@ function findPlayerInMatch(match: Match, playerName: string): Player | null {
   return null;
 }
 
+function getFeederIdsForMatch(matchId: string, matchMap: Map<string, Match>): [string, string] {
+  const feeders: string[] = [];
+  for (const [id, m] of matchMap) {
+    if (m.nextMatchId === matchId) feeders.push(id);
+  }
+  feeders.sort((a, b) => {
+    const mA = matchMap.get(a)!;
+    const mB = matchMap.get(b)!;
+    return mA.position - mB.position;
+  });
+  return [feeders[0] || '', feeders[1] || ''];
+}
+
 /**
  * Returns the IDs of the two matches that feed into the given match,
  * in the order [player1Source, player2Source].
@@ -60,18 +73,7 @@ function getFeedersForMatch(
   matchId: string,
   matchMap: Map<string, Match>
 ): [string, string] {
-  const feeders: string[] = [];
-  for (const [id, m] of matchMap) {
-    if (m.nextMatchId === matchId) {
-      feeders.push(id);
-    }
-  }
-  feeders.sort((a, b) => {
-    const mA = matchMap.get(a)!;
-    const mB = matchMap.get(b)!;
-    return mA.position - mB.position;
-  });
-  return [feeders[0] || '', feeders[1] || ''];
+  return getFeederIdsForMatch(matchId, matchMap);
 }
 
 /**
@@ -113,6 +115,79 @@ function clearDownstream(
       clearDownstream(picks, match.nextMatchId, displacedPlayer, matchMap);
     }
   }
+}
+
+function resolvePlayersForOfficialMatch(
+  match: Match,
+  matchMap: Map<string, Match>,
+  results: Record<string, OfficialResult>
+): { player1: Player | null; player2: Player | null } {
+  if (match.round === 2) {
+    return { player1: match.player1, player2: match.player2 };
+  }
+  const [f1, f2] = getFeederIdsForMatch(match.id, matchMap);
+  const feeders = [f1, f2];
+  const resolved: (Player | null)[] = [null, null];
+
+  feeders.forEach((fid, i) => {
+    if (!fid) return;
+    const feeder = matchMap.get(fid);
+    const winnerName = results[fid]?.winnerName;
+    if (!feeder || !winnerName) return;
+    const p =
+      feeder.player1?.name === winnerName
+        ? feeder.player1
+        : feeder.player2?.name === winnerName
+          ? feeder.player2
+          : { name: winnerName, country: '—' };
+    resolved[i] = p;
+  });
+
+  return { player1: resolved[0], player2: resolved[1] };
+}
+
+/**
+ * Filter official results so a match is only considered decided if its winner is
+ * one of the two players actually present in that match (after propagating prior
+ * official winners forward).
+ *
+ * This prevents "phantom completed" matches caused by bad imports or stale data
+ * (e.g. a score attached to a future match with TBD players).
+ */
+export function filterOfficialResultsToValidWinners(
+  results: Record<string, OfficialResult>
+): Record<string, OfficialResult> {
+  const matchMap = new Map<string, Match>();
+  for (const m of tournamentData) {
+    matchMap.set(m.id, m);
+  }
+
+  const kept: Record<string, OfficialResult> = {};
+  const rounds = [2, 3, 4, 5, 6, 7];
+
+  for (const round of rounds) {
+    const matchesInRound = tournamentData
+      .filter((m) => m.round === round)
+      .sort((a, b) => a.position - b.position);
+
+    for (const match of matchesInRound) {
+      const r = results[match.id];
+      if (!r?.winnerName) continue;
+
+      const { player1, player2 } = resolvePlayersForOfficialMatch(
+        match,
+        matchMap,
+        kept
+      );
+
+      if (!player1 || !player2) continue;
+      if (r.winnerName !== player1.name && r.winnerName !== player2.name) continue;
+
+      kept[match.id] = r;
+    }
+  }
+
+  return kept;
 }
 
 /**

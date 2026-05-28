@@ -99,18 +99,19 @@ export function parsePdfResults(text: string): PdfParsedResult[] {
 
   const woRe = new RegExp(RESULT_WO_WIN_RE.source, 'g');
   while ((m = woRe.exec(text)) !== null) {
-    const abbrev = m[1]!.trim();
-    const seed = m[2] ? parseInt(m[2], 10) : undefined;
-    const idx = m.index;
-    if (claimedRanges.some((r) => spansOverlap(idx, idx + m[0].length, r.start, r.end))) {
+    const match = m;
+    const abbrev = match[1]!.trim();
+    const seed = match[2] ? parseInt(match[2], 10) : undefined;
+    const idx = match.index;
+    if (claimedRanges.some((r) => spansOverlap(idx, idx + match[0].length, r.start, r.end))) {
       continue;
     }
-    claimedRanges.push({ start: idx, end: idx + m[0].length });
+    claimedRanges.push({ start: idx, end: idx + match[0].length });
     results.push({
       abbrev,
       seed,
       scorePart: 'WO',
-      rawLine: m[0].trim(),
+      rawLine: match[0].trim(),
       charIndex: idx,
       walkoverWin: true,
       orphan: false,

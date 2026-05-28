@@ -7,6 +7,7 @@ import {
   onValue,
 } from 'firebase/database';
 import { UserBracket, OfficialResult } from './types';
+import { filterOfficialResultsToValidWinners } from './bracketEngine';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyAmGflQbDLB_li65J6KYRisp7JjfsB2hiI',
@@ -95,7 +96,7 @@ function sanitizeOfficialResults(
     }
     clean[matchId] = entry;
   }
-  return clean;
+  return filterOfficialResultsToValidWinners(clean);
 }
 
 export async function saveOfficialResults(
@@ -114,7 +115,7 @@ export function onOfficialChange(
   callback: (results: Record<string, OfficialResult>) => void
 ): () => void {
   const unsub = onValue(ref(db, OFFICIAL_PATH), (snapshot) => {
-    callback(snapshot.exists() ? snapshot.val() : {});
+    callback(sanitizeOfficialResults(snapshot.exists() ? snapshot.val() : {}));
   });
   return unsub;
 }
