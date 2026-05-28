@@ -301,6 +301,7 @@ function findBestPdfResultForMatch(
   pdfText: string,
   pdfResults: PdfParsedResult[],
   used: Set<number>,
+  minCharIndex: number,
   player1: Player,
   player2: Player
 ): { index: number; winner: Player; parsed: PdfParsedResult } | null {
@@ -308,6 +309,7 @@ function findBestPdfResultForMatch(
 
   for (let i = 0; i < pdfResults.length; i++) {
     if (used.has(i)) continue;
+    if (pdfResults[i]!.charIndex < minCharIndex) continue;
     const pr = pdfResults[i]!;
     const s = scoreCandidate(pdfText, pr, player1, player2);
     if (s >= 0) ranked.push({ index: i, score: s });
@@ -348,6 +350,7 @@ export function applyPdfResultsToOfficial(
   const skippedMatches: string[] = [];
 
   const rounds = [2, 3, 4, 5, 6, 7];
+  let minCharIndex = 0;
   for (const round of rounds) {
     const matches = tournamentData
       .filter((m) => m.round === round)
@@ -364,12 +367,14 @@ export function applyPdfResultsToOfficial(
         pdfText,
         pdfResults,
         used,
+        minCharIndex,
         player1,
         player2
       );
       if (!hit) continue;
 
       used.add(hit.index);
+      minCharIndex = hit.parsed.charIndex;
       const display = buildDisplayScore(hit.winner, hit.parsed.scorePart);
       results[match.id] = {
         winnerName: hit.winner.name,
