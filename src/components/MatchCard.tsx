@@ -14,6 +14,8 @@ interface MatchCardProps {
   eliminatedSlashKeys?: Set<string>;
   /** Click match to open score detail (official bracket view mode) */
   onViewScore?: (matchId: string) => void;
+  /** Click any match to open detail modal (official bracket view mode) */
+  onViewMatch?: (matchId: string) => void;
 }
 
 function PlayerSlot({
@@ -79,9 +81,11 @@ export default function MatchCard({
   showScore = false,
   eliminatedSlashKeys,
   onViewScore,
+  onViewMatch,
 }: MatchCardProps) {
   const canPick = !readOnly && !!onPickWinner;
-  const canViewScore = readOnly && !!match.score && !!onViewScore;
+  const canViewMatch = readOnly && !!onViewMatch;
+  const canViewScore = readOnly && !!match.score && !!onViewScore && !onViewMatch;
   const p1CanSelect = canPick && !!match.player1;
   const p2CanSelect = canPick && !!match.player2;
 
@@ -103,9 +107,15 @@ export default function MatchCard({
 
   return (
     <div
-      className={`match-card ${compact ? 'match-card--compact' : ''} ${canViewScore ? 'match-card--view-score' : ''}`}
-      onClick={canViewScore ? () => onViewScore!(match.id) : undefined}
-      title={canViewScore ? 'View match score' : undefined}
+      className={`match-card ${compact ? 'match-card--compact' : ''} ${canViewMatch || canViewScore ? 'match-card--view-score' : ''}`}
+      onClick={
+        canViewMatch
+          ? () => onViewMatch!(match.id)
+          : canViewScore
+            ? () => onViewScore!(match.id)
+            : undefined
+      }
+      title={canViewMatch ? 'View match details' : canViewScore ? 'View match score' : undefined}
     >
       <PlayerSlot
         player={match.player1}
@@ -127,7 +137,14 @@ export default function MatchCard({
       {showScore && match.score && (
         <div className="match-score">
           {match.score}
-          {canViewScore && <span className="match-score-hint"> Tap for details</span>}
+          {(canViewMatch || canViewScore) && (
+            <span className="match-score-hint"> Tap for details</span>
+          )}
+        </div>
+      )}
+      {!match.score && canViewMatch && (
+        <div className="match-score match-score--hint-only">
+          <span className="match-score-hint">Tap for details</span>
         </div>
       )}
     </div>

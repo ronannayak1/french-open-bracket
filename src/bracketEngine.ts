@@ -250,18 +250,50 @@ function getOfficialLossRoundByPlayer(
   officialResults: Record<string, OfficialResult>
 ): Map<string, number> {
   const lossRound = new Map<string, number>();
-  for (const match of tournamentData) {
-    const official = officialResults[match.id];
-    if (!official?.winnerName) continue;
-    for (const p of [match.player1, match.player2]) {
-      if (p && p.name !== official.winnerName) {
-        const prev = lossRound.get(p.name);
-        if (prev === undefined || match.round < prev) {
-          lossRound.set(p.name, match.round);
+  const matchMap = new Map<string, Match>();
+  for (const m of tournamentData) {
+    matchMap.set(m.id, m);
+  }
+
+  const kept: Record<string, OfficialResult> = {};
+  const rounds = [2, 3, 4, 5, 6, 7];
+
+  for (const round of rounds) {
+    const matchesInRound = tournamentData
+      .filter((m) => m.round === round)
+      .sort((a, b) => a.position - b.position);
+
+    for (const match of matchesInRound) {
+      const official = officialResults[match.id];
+      if (!official?.winnerName) continue;
+
+      const { player1, player2 } = resolvePlayersForOfficialMatch(
+        match,
+        matchMap,
+        kept
+      );
+
+      if (!player1 || !player2) continue;
+      if (
+        official.winnerName !== player1.name &&
+        official.winnerName !== player2.name
+      ) {
+        continue;
+      }
+
+      kept[match.id] = official;
+
+      for (const p of [player1, player2]) {
+        if (p.name !== official.winnerName) {
+          const prev = lossRound.get(p.name);
+          if (prev === undefined || match.round < prev) {
+            lossRound.set(p.name, match.round);
+          }
         }
       }
     }
   }
+
   return lossRound;
 }
 
@@ -287,9 +319,7 @@ export function getEliminatedSlashKeys(
       if (!p) continue;
       const lr = lossRound.get(p.name);
       if (lr === undefined) continue;
-      if (match.round > lr) {
-        keys.add(eliminatedSlashKey(match.id, p.name));
-      } else if (match.round === lr && picks[match.id] === p.name) {
+      if (match.round >= lr) {
         keys.add(eliminatedSlashKey(match.id, p.name));
       }
     }
