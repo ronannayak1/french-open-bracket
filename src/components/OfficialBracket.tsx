@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { OfficialResult } from '../types';
+import { OfficialResult, UserBracket } from '../types';
 import { resolveBracket, cascadeClear } from '../bracketEngine';
-import { saveOfficialResults, onOfficialChange } from '../firebase';
+import { saveOfficialResults, onOfficialChange, onBracketsChange } from '../firebase';
 import { tournamentData } from '../data';
 import Bracket from './Bracket';
 import OfficialPdfUpload from './OfficialPdfUpload';
-import MatchScoreModal from './MatchScoreModal';
+import MatchDetailModal from './MatchDetailModal';
 
 export default function OfficialBracket() {
   const [officialResults, setOfficialResults] = useState<Record<string, OfficialResult>>({});
@@ -15,7 +15,13 @@ export default function OfficialBracket() {
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [importMessage, setImportMessage] = useState<string | null>(null);
   const [localPicks, setLocalPicks] = useState<Record<string, string>>({});
-  const [scoreMatchId, setScoreMatchId] = useState<string | null>(null);
+  const [detailMatchId, setDetailMatchId] = useState<string | null>(null);
+  const [allBrackets, setAllBrackets] = useState<UserBracket[]>([]);
+
+  useEffect(() => {
+    const unsub = onBracketsChange(setAllBrackets);
+    return unsub;
+  }, []);
 
   useEffect(() => {
     const unsub = onOfficialChange((results) => {
@@ -118,10 +124,11 @@ export default function OfficialBracket() {
     }));
   }, [localPicks, officialResults]);
 
-  const scoreMatch = scoreMatchId
-    ? tournamentData.find((m) => m.id === scoreMatchId)
+  const detailMatch = detailMatchId
+    ? displayMatches.find((m) => m.id === detailMatchId) ??
+      tournamentData.find((m) => m.id === detailMatchId)
     : null;
-  const scoreResult = scoreMatchId ? officialResults[scoreMatchId] : null;
+  const detailResult = detailMatchId ? officialResults[detailMatchId] : undefined;
 
   const decidedCount = Object.keys(localPicks).length;
 
@@ -200,7 +207,7 @@ export default function OfficialBracket() {
         </div>
       ) : (
         <div className="official-hint">
-          Tap any completed match with a score to view set-by-set details.
+          Tap any match to see user picks and score details.
         </div>
       )}
 
@@ -209,23 +216,15 @@ export default function OfficialBracket() {
         onPickWinner={handlePickWinner}
         readOnly={!editing}
         showScores
-        onViewScore={!editing ? setScoreMatchId : undefined}
+        onViewMatch={!editing ? setDetailMatchId : undefined}
       />
 
-      {scoreMatch && scoreResult?.score && (
-        <MatchScoreModal
-          match={{
-            ...scoreMatch,
-            player1:
-              displayMatches.find((m) => m.id === scoreMatchId)?.player1 ??
-              scoreMatch.player1,
-            player2:
-              displayMatches.find((m) => m.id === scoreMatchId)?.player2 ??
-              scoreMatch.player2,
-            winnerName: localPicks[scoreMatchId!],
-          }}
-          result={scoreResult}
-          onClose={() => setScoreMatchId(null)}
+      {detailMatch && (
+        <MatchDetailModal
+          match={detailMatch}
+          officialResult={detailResult}
+          brackets={allBrackets}
+          onClose={() => setDetailMatchId(null)}
         />
       )}
     </div>

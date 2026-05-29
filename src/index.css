@@ -1050,6 +1050,98 @@ body {
   border-top: 1px solid var(--border);
 }
 
+.match-detail-modal {
+  max-width: 420px;
+  max-height: min(85vh, 640px);
+  overflow-y: auto;
+}
+
+.match-detail-matchup {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: var(--text-primary);
+}
+
+.match-detail-vs {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+}
+
+.match-detail-picks {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.match-detail-picks-title {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-muted);
+  margin: 0 0 10px;
+}
+
+.match-detail-picks-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.match-detail-pick-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+
+.match-detail-pick-row:last-child {
+  border-bottom: none;
+}
+
+.match-detail-pick-name {
+  font-weight: 700;
+  color: var(--text-primary);
+  flex-shrink: 0;
+}
+
+.match-detail-pick-player {
+  text-align: right;
+  color: var(--text-secondary);
+  word-break: break-word;
+}
+
+.match-detail-pick-note {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.match-detail-pick-row--correct .match-detail-pick-player {
+  color: var(--green);
+  font-weight: 800;
+}
+
+.match-detail-pick-row--incorrect .match-detail-pick-player {
+  color: #e74c3c;
+  font-weight: 700;
+}
+
+.match-score--hint-only {
+  padding-top: 2px;
+}
+
 /* ================================================================
    VERDICT COLORS (correct / incorrect / official winner)
    ================================================================ */
