@@ -11,6 +11,8 @@ import Leaderboard from './components/Leaderboard';
 import Countdown, { isLocked } from './components/Countdown';
 import NavTabs from './components/NavTabs';
 import BrandLogo from './components/BrandLogo';
+import MatchDetailModal from './components/MatchDetailModal';
+import { tournamentData } from './data';
 
 type Page = 'bracket' | 'view' | 'official' | 'leaderboard';
 
@@ -28,6 +30,7 @@ export default function App() {
   const [editingName, setEditingName] = useState(false);
   const [nameInput, setNameInput] = useState('');
   const [locked, setLocked] = useState(isLocked());
+  const [detailMatchId, setDetailMatchId] = useState<string | null>(null);
 
   useEffect(() => {
     const id = setInterval(() => setLocked(isLocked()), 1000);
@@ -162,6 +165,11 @@ export default function App() {
   const totalNeeded = getTotalPicksNeeded();
   const submittedCount = allBrackets.filter((b) => b.submitted).length;
   const myScore = calculateScore(picks, officialResults);
+  const detailMatch = detailMatchId
+    ? resolvedMatches.find((m) => m.id === detailMatchId) ??
+      tournamentData.find((m) => m.id === detailMatchId)
+    : null;
+  const detailResult = detailMatchId ? officialResults[detailMatchId] : undefined;
 
   return (
     <div className="app">
@@ -289,13 +297,30 @@ export default function App() {
             currentPoints={myScore.decided > 0 ? myScore.total : undefined}
           />
 
+          {bracketReadOnly && (
+            <div className="official-hint">
+              Tap any match to see picks, scores, and official stats.
+            </div>
+          )}
+
           <Bracket
             matches={resolvedMatches}
             onPickWinner={handlePickWinner}
             readOnly={bracketReadOnly}
             userPicks={picks}
             officialResults={officialResults}
+            showScores={bracketReadOnly}
+            onViewMatch={bracketReadOnly ? setDetailMatchId : undefined}
           />
+
+          {detailMatch && (
+            <MatchDetailModal
+              match={detailMatch}
+              officialResult={detailResult}
+              brackets={allBrackets}
+              onClose={() => setDetailMatchId(null)}
+            />
+          )}
         </main>
       )}
 

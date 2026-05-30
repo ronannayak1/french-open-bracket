@@ -4,6 +4,7 @@ import {
   scorePartFromDisplayLine,
   describeSet,
 } from '../scoreFormat';
+import MatchMatchupHeader from './MatchMatchupHeader';
 
 interface MatchDetailModalProps {
   match: Match;
@@ -50,11 +51,7 @@ export default function MatchDetailModal({
           {ROUND_LABELS[match.round]} — Match details
         </h3>
 
-        <div className="match-detail-matchup">
-          <span>{match.player1?.name ?? 'TBD'}</span>
-          <span className="match-detail-vs">vs</span>
-          <span>{match.player2?.name ?? 'TBD'}</span>
-        </div>
+        <MatchMatchupHeader match={match} />
 
         {officialResult?.score && (
           <>

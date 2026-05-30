@@ -1,10 +1,10 @@
-import { Match, OfficialResult } from '../types';
-import { ROUND_LABELS } from '../types';
+import { Match, OfficialResult, ROUND_LABELS } from '../types';
 import {
   parseSetScores,
   scorePartFromDisplayLine,
   describeSet,
 } from '../scoreFormat';
+import MatchMatchupHeader from './MatchMatchupHeader';
 
 interface MatchScoreModalProps {
   match: Match;
@@ -42,6 +42,7 @@ export default function MatchScoreModal({
         <h3 id="score-modal-title" className="score-modal-title">
           {ROUND_LABELS[match.round]} — Match score
         </h3>
+        <MatchMatchupHeader match={match} />
         <p className="score-modal-line">{result.score}</p>
         <div className="score-modal-players">
           <div>

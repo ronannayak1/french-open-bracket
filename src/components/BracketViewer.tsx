@@ -3,6 +3,8 @@ import { UserBracket, OfficialResult, ROUND_POINTS } from '../types';
 import { resolveBracket, scoreBracketForLeaderboard, getTournamentMaxPoints } from '../bracketEngine';
 import Bracket from './Bracket';
 import BracketPointsBanner from './BracketPointsBanner';
+import MatchDetailModal from './MatchDetailModal';
+import { tournamentData } from '../data';
 
 interface BracketViewerProps {
   brackets: UserBracket[];
@@ -17,6 +19,7 @@ export default function BracketViewer({
 }: BracketViewerProps) {
   const submittedBrackets = brackets.filter((b) => b.submitted);
   const [viewingId, setViewingId] = useState<string | null>(null);
+  const [detailMatchId, setDetailMatchId] = useState<string | null>(null);
 
   const hasOfficialResults = Object.keys(officialResults).length > 0;
 
@@ -42,6 +45,11 @@ export default function BracketViewer({
     scored[0];
   const activeBracket = activeEntry.bracket;
   const resolvedMatches = resolveBracket(activeBracket.picks);
+  const detailMatch = detailMatchId
+    ? resolvedMatches.find((m) => m.id === detailMatchId) ??
+      tournamentData.find((m) => m.id === detailMatchId)
+    : null;
+  const detailResult = detailMatchId ? officialResults[detailMatchId] : undefined;
 
   return (
     <div className="viewer-container">
@@ -129,12 +137,27 @@ export default function BracketViewer({
         currentPoints={hasOfficialResults ? activeEntry.score.total : undefined}
       />
 
+      <div className="official-hint">
+        Tap any match to see picks, scores, and official stats.
+      </div>
+
       <Bracket
         matches={resolvedMatches}
         readOnly
         userPicks={activeBracket.picks}
         officialResults={officialResults}
+        showScores
+        onViewMatch={setDetailMatchId}
       />
+
+      {detailMatch && (
+        <MatchDetailModal
+          match={detailMatch}
+          officialResult={detailResult}
+          brackets={brackets}
+          onClose={() => setDetailMatchId(null)}
+        />
+      )}
     </div>
   );
 }
