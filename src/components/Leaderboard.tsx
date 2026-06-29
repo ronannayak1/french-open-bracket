@@ -22,7 +22,7 @@ export default function Leaderboard({
 
   const tournamentMax = getTournamentMaxPoints();
 
-  const rounds = [2, 3, 4, 5, 6, 7] as const;
+  const rounds = [1, 2, 3, 4, 5, 6, 7] as const;
 
   function roundBreakdown(
     picks: Record<string, string>,

@@ -32,6 +32,7 @@ export interface OfficialResult {
 export type Section = 'top' | 'bottom';
 
 export const ROUND_LABELS: Record<number, string> = {
+  1: '1st Round',
   2: '2nd Round',
   3: '3rd Round',
   4: '4th Round',
@@ -40,14 +41,15 @@ export const ROUND_LABELS: Record<number, string> = {
   7: 'Final',
 };
 
-/** Points double each round: R2=1, R3=2, R4=4, QF=8, SF=16, F=32 */
+/** Points double each round: R1=1, R2=2, R3=4, R4=8, QF=16, SF=32, F=64 */
 export const ROUND_POINTS: Record<number, number> = {
-  2: 1,
-  3: 2,
-  4: 4,
-  5: 8,
-  6: 16,
-  7: 32,
+  1: 1,
+  2: 2,
+  3: 4,
+  4: 8,
+  5: 16,
+  6: 32,
+  7: 64,
 };
 
 export interface UserAccount {
@@ -57,9 +59,9 @@ export interface UserAccount {
 }
 
 export const USER_ACCOUNTS: UserAccount[] = [
-  { id: 'R', defaultName: 'R', password: 'roland1' },
-  { id: 'S', defaultName: 'S', password: 'roland2' },
-  { id: 'M', defaultName: 'M', password: 'roland3' },
-  { id: 'T', defaultName: 'T', password: 'roland4' },
-  { id: 'M2', defaultName: 'M2', password: 'roland5' },
+  { id: 'R', defaultName: 'R', password: 'wimbledon1' },
+  { id: 'S', defaultName: 'S', password: 'wimbledon2' },
+  { id: 'M', defaultName: 'M', password: 'wimbledon3' },
+  { id: 'T', defaultName: 'T', password: 'wimbledon4' },
+  { id: 'M2', defaultName: 'M2', password: 'wimbledon5' },
 ];

@@ -14,7 +14,7 @@ export function resolveBracket(
     matchMap.set(m.id, { ...m, player1: m.player1 ? { ...m.player1 } : null, player2: m.player2 ? { ...m.player2 } : null });
   }
 
-  const rounds = [2, 3, 4, 5, 6, 7];
+  const rounds = [1, 2, 3, 4, 5, 6, 7];
 
   for (const round of rounds) {
     const matchesInRound = [...matchMap.values()]
@@ -122,7 +122,7 @@ function resolvePlayersForOfficialMatch(
   matchMap: Map<string, Match>,
   results: Record<string, OfficialResult>
 ): { player1: Player | null; player2: Player | null } {
-  if (match.round === 2) {
+  if (match.round === 1) {
     return { player1: match.player1, player2: match.player2 };
   }
   const [f1, f2] = getFeederIdsForMatch(match.id, matchMap);
@@ -163,7 +163,7 @@ export function filterOfficialResultsToValidWinners(
   }
 
   const kept: Record<string, OfficialResult> = {};
-  const rounds = [2, 3, 4, 5, 6, 7];
+  const rounds = [1, 2, 3, 4, 5, 6, 7];
 
   for (const round of rounds) {
     const matchesInRound = tournamentData
@@ -256,7 +256,7 @@ function getOfficialLossRoundByPlayer(
   }
 
   const kept: Record<string, OfficialResult> = {};
-  const rounds = [2, 3, 4, 5, 6, 7];
+  const rounds = [1, 2, 3, 4, 5, 6, 7];
 
   for (const round of rounds) {
     const matchesInRound = tournamentData

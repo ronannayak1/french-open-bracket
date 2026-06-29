@@ -154,7 +154,7 @@ function resolvePlayersForMatch(
   match: Match,
   results: Record<string, OfficialResult>
 ): { player1: Player | null; player2: Player | null } {
-  if (match.round === 2) {
+  if (match.round === 1) {
     return { player1: match.player1, player2: match.player2 };
   }
   const feeders = getFeedersForMatch(match.id);
@@ -350,7 +350,7 @@ export function applyPdfResultsToOfficial(
   const results: Record<string, OfficialResult> = { ...existing };
   const skippedMatches: string[] = [];
 
-  const rounds = [2, 3, 4, 5, 6, 7];
+  const rounds = [1, 2, 3, 4, 5, 6, 7];
   let minCharIndex = 0;
   for (const round of rounds) {
     const matches = tournamentData

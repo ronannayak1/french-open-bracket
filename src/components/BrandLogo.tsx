@@ -1,7 +1,7 @@
-const LOGO_SRC = `${import.meta.env.BASE_URL}roland-garros-logo.png`;
+const LOGO_SRC = `${import.meta.env.BASE_URL}wimbledon-logo.svg`;
 
-/** Source image is 1024×682 */
-const LOGO_ASPECT = 1024 / 682;
+/** Source image is 320×80 */
+const LOGO_ASPECT = 320 / 80;
 
 interface BrandLogoProps {
   /** Display height in CSS pixels; width follows image aspect ratio. */
@@ -17,7 +17,7 @@ export function logoSrc(): string {
 export default function BrandLogo({
   height = 40,
   className = '',
-  alt = 'Roland-Garros',
+  alt = 'Wimbledon',
 }: BrandLogoProps) {
   const width = Math.round(height * LOGO_ASPECT);
 

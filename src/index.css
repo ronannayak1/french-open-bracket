@@ -1,6 +1,6 @@
 /* ================================================================
-   ROLAND-GARROS 2026 BRACKET CHALLENGE
-   Theme: Dark background with terracotta/clay court accents
+   WIMBLEDON 2026 BRACKET CHALLENGE
+   Theme: Dark grass-court green with purple accents
    ================================================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
@@ -9,26 +9,26 @@
   --nav-bottom-height: 0px;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 
-  --bg-primary: #0f1118;
-  --bg-secondary: #181c25;
-  --bg-card: #1e2230;
-  --bg-card-hover: #252a3a;
-  --border: #2a3040;
-  --border-light: #353d52;
+  --bg-primary: #0d1a14;
+  --bg-secondary: #142a1f;
+  --bg-card: #1a3328;
+  --bg-card-hover: #214032;
+  --border: #2a4d3a;
+  --border-light: #35624a;
 
-  --clay: #c45a3c;
-  --clay-light: #e8734f;
-  --clay-dark: #8b3a24;
-  --clay-glow: rgba(196, 90, 60, 0.3);
+  --clay: #40916c;
+  --clay-light: #74c69d;
+  --clay-dark: #1b4332;
+  --clay-glow: rgba(64, 145, 108, 0.35);
 
-  --green: #2ecc71;
-  --gold: #f1c40f;
+  --green: #52b788;
+  --gold: #d4af37;
 
-  --text-primary: #e8ecf4;
-  --text-secondary: #8892a8;
-  --text-muted: #5a6378;
+  --text-primary: #e8f4ec;
+  --text-secondary: #8aab96;
+  --text-muted: #5a7a68;
 
-  --connector-color: #3a4560;
+  --connector-color: #2d5a44;
 
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
@@ -59,7 +59,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(ellipse at center, #1a1520 0%, var(--bg-primary) 70%);
+  background: radial-gradient(ellipse at center, #1a2e24 0%, var(--bg-primary) 70%);
 }
 
 .login-card {
@@ -664,7 +664,7 @@ body {
 
 .player-slot--selectable { cursor: pointer; }
 .player-slot--selectable:hover { background: var(--bg-card-hover); }
-.player-slot--winner { background: rgba(196, 90, 60, 0.12); }
+.player-slot--winner { background: rgba(64, 145, 108, 0.15); }
 .player-slot--empty { justify-content: center; }
 
 .player-tbd {
@@ -1453,7 +1453,7 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: var(--clay-light);
-  background: rgba(232, 115, 79, 0.15);
+  background: rgba(116, 198, 157, 0.15);
   padding: 2px 6px;
   border-radius: 3px;
 }

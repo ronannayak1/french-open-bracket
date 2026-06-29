@@ -86,14 +86,14 @@ function RoundColumn({
               match={match}
               onPickWinner={onPickWinner}
               readOnly={readOnly}
-              compact={round >= 3}
+              compact={round >= 4}
               officialWinner={officialResults?.[match.id]?.winnerName}
               showScore={showScores}
               eliminatedSlashKeys={eliminatedSlashKeys}
               onViewScore={onViewScore}
               onViewMatch={onViewMatch}
             />
-            {round >= 2 && round <= 6 && (
+            {round >= 1 && round <= 6 && (
               <Connector
                 side={side}
                 halfSpan={blockSize / 2}
@@ -175,6 +175,7 @@ export default function Bracket({
     };
   };
 
+  const r1 = splitByHalf(1, 32);
   const r2 = splitByHalf(2, 16);
   const r3 = splitByHalf(3, 8);
   const r4 = splitByHalf(4, 4);
@@ -183,6 +184,7 @@ export default function Bracket({
   const final = byRound.get(7) || [];
 
   const leftRounds = [
+    { round: 1, matches: r1.top },
     { round: 2, matches: r2.top },
     { round: 3, matches: r3.top },
     { round: 4, matches: r4.top },
@@ -194,6 +196,7 @@ export default function Bracket({
     { round: 4, matches: r4.bottom },
     { round: 3, matches: r3.bottom },
     { round: 2, matches: r2.bottom },
+    { round: 1, matches: r1.bottom },
   ];
 
   return (

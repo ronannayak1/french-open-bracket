@@ -84,7 +84,7 @@ export default function OfficialPdfUpload({
           {busy ? 'Reading PDF…' : 'Upload nightly draw PDF'}
         </span>
         <span className="official-upload-sub">
-          Drop Roland-Garros results PDF here or click to browse. Updates winners and scores for completed matches.
+          Drop Wimbledon results PDF here or click to browse. Updates winners and scores for completed matches.
         </span>
       </div>
       {error && (
