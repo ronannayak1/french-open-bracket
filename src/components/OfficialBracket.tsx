@@ -74,7 +74,7 @@ export default function OfficialBracket() {
       const msg =
         e instanceof Error ? e.message : 'Could not save official results.';
       setSaveError(
-        `${msg} If this says Permission denied, add rules for frenchOpen2026/official — see FIREBASE.md in the repo.`
+        `${msg} If this says Permission denied, add rules for wimbledon2026/official — see FIREBASE.md in the repo.`
       );
     } finally {
       setSaving(false);

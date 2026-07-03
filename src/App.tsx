@@ -18,7 +18,7 @@ type Page = 'bracket' | 'view' | 'official' | 'leaderboard';
 
 export default function App() {
   const [userId, setUserId] = useState<string | null>(() =>
-    localStorage.getItem('rg_user')
+    localStorage.getItem('wimbledon_user')
   );
   const [displayName, setDisplayName] = useState<string>('');
   const [picks, setPicks] = useState<Record<string, string>>({});
@@ -68,7 +68,7 @@ export default function App() {
 
   const handleLogin = useCallback((id: string) => {
     setUserId(id);
-    localStorage.setItem('rg_user', id);
+    localStorage.setItem('wimbledon_user', id);
   }, []);
 
   const handleLogout = useCallback(() => {
@@ -76,7 +76,7 @@ export default function App() {
     setDisplayName('');
     setPicks({});
     setSubmitted(false);
-    localStorage.removeItem('rg_user');
+    localStorage.removeItem('wimbledon_user');
   }, []);
 
   const handlePickWinner = useCallback(
@@ -179,7 +179,7 @@ export default function App() {
             <BrandLogo height={40} className="nav-brand-logo" />
             <div className="nav-brand-text">
               <h1>
-                <span className="nav-brand-rg">ROLAND-GARROS</span>{' '}
+                <span className="nav-brand-rg">WIMBLEDON</span>{' '}
                 <span className="nav-brand-accent">2026</span>
               </h1>
               <div className="nav-brand-sub">

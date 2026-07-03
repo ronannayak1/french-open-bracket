@@ -57,9 +57,9 @@ export interface UserAccount {
 }
 
 export const USER_ACCOUNTS: UserAccount[] = [
-  { id: 'R', defaultName: 'R', password: 'roland1' },
-  { id: 'S', defaultName: 'S', password: 'roland2' },
-  { id: 'M', defaultName: 'M', password: 'roland3' },
-  { id: 'T', defaultName: 'T', password: 'roland4' },
-  { id: 'M2', defaultName: 'M2', password: 'roland5' },
+  { id: 'R', defaultName: 'R', password: 'wimbledon1' },
+  { id: 'S', defaultName: 'S', password: 'wimbledon2' },
+  { id: 'M', defaultName: 'M', password: 'wimbledon3' },
+  { id: 'T', defaultName: 'T', password: 'wimbledon4' },
+  { id: 'M2', defaultName: 'M2', password: 'wimbledon5' },
 ];

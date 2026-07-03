@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-const LOCK_TIME = new Date('2026-05-27T09:00:00Z').getTime(); // 2 AM PST = 09:00 UTC
+const LOCK_TIME = new Date('2026-06-29T10:00:00Z').getTime(); // Wimbledon main draw, 29 June 2026
 
 export default function Countdown() {
   const [now, setNow] = useState(Date.now());

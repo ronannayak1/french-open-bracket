@@ -1,112 +1,116 @@
 import { Match } from './types';
 
 /**
- * 2026 Roland-Garros Men's Singles bracket — Round 2 onwards.
- * Players shown are the R1 winners from the official draw (26 May 2026).
+ * 2026 Wimbledon Men's Singles bracket — Round 2 onwards (Round of 64).
+ * Players shown are R1 winners from the official draw (29 June 2026).
  */
 export const tournamentData: Match[] = [
   // ============================================================
-  // ROUND 2 — 32 matches
+  // ROUND 2 — 32 matches (Round of 64)
   // TOP HALF (positions 1-16)
   // ============================================================
 
-  // --- Quarter 1: Sinner section (1-8) ---
+  // --- Section 1 (positions 1-4) ---
   {
     id: 'r2-m1', round: 2, position: 1,
     player1: { name: 'Jannik SINNER', country: 'ITA', seed: 1 },
-    player2: { name: 'Juan Manuel CERUNDOLO', country: 'ARG' },
+    player2: { name: 'Nuno BORGES', country: 'POR' },
     nextMatchId: 'r3-m1',
   },
   {
     id: 'r2-m2', round: 2, position: 2,
-    player1: { name: 'Martin LANDALUCE', country: 'ESP' },
-    player2: { name: 'Vit KOPRIVA', country: 'CZE' },
+    player1: { name: 'Jenson BROOKSBY', country: 'USA' },
+    player2: { name: 'Ignacio BUSE', country: 'PER', seed: 31 },
     nextMatchId: 'r3-m1',
   },
   {
     id: 'r2-m3', round: 2, position: 3,
-    player1: { name: 'Arthur RINDERKNECH', country: 'FRA', seed: 22 },
-    player2: { name: 'Matteo BERRETTINI', country: 'ITA' },
+    player1: { name: 'Rafael JODAR', country: 'ESP', seed: 23 },
+    player2: { name: 'Pablo CARRENO BUSTA', country: 'ESP' },
     nextMatchId: 'r3-m2',
   },
   {
     id: 'r2-m4', round: 2, position: 4,
-    player1: { name: 'Francisco COMESANA', country: 'ARG' },
-    player2: { name: 'Luciano DARDERI', country: 'ITA', seed: 14 },
+    player1: { name: 'Shintaro MOCHIZUKI', country: 'JPN', status: 'Q' },
+    player2: { name: 'Ethan QUINN', country: 'USA' },
     nextMatchId: 'r3-m2',
   },
+
+  // --- Section 2 (positions 5-8) ---
   {
     id: 'r2-m5', round: 2, position: 5,
-    player1: { name: 'Jan-Lennard STRUFF', country: 'GER' },
-    player2: { name: 'Jaime FARIA', country: 'POR', status: 'Q' },
+    player1: { name: 'Hubert HURKACZ', country: 'POL' },
+    player2: { name: 'Sebastian OFNER', country: 'AUT' },
     nextMatchId: 'r3-m3',
   },
   {
     id: 'r2-m6', round: 2, position: 6,
-    player1: { name: 'Hubert HURKACZ', country: 'POL' },
-    player2: { name: 'Frances TIAFOE', country: 'USA', seed: 19 },
+    player1: { name: 'Soon-woo KWON', country: 'KOR', status: 'Q' },
+    player2: { name: 'Tommy PAUL', country: 'USA', seed: 21 },
     nextMatchId: 'r3-m3',
   },
   {
     id: 'r2-m7', round: 2, position: 7,
-    player1: { name: 'Matteo ARNALDI', country: 'ITA' },
-    player2: { name: 'Stefanos TSITSIPAS', country: 'GRE' },
+    player1: { name: 'Brandon NAKASHIMA', country: 'USA', seed: 28 },
+    player2: { name: 'Jan-Lennard STRUFF', country: 'GER' },
     nextMatchId: 'r3-m4',
   },
   {
     id: 'r2-m8', round: 2, position: 8,
-    player1: { name: 'Raphael COLLIGNON', country: 'BEL' },
-    player2: { name: 'Ben SHELTON', country: 'USA', seed: 5 },
+    player1: { name: 'Daniel MERIDA', country: 'ESP' },
+    player2: { name: 'Daniil MEDVEDEV', country: '---', seed: 8 },
     nextMatchId: 'r3-m4',
   },
 
-  // --- Quarter 2: Auger-Aliassime section (9-16) ---
+  // --- Section 3 (positions 9-12) ---
   {
     id: 'r2-m9', round: 2, position: 9,
-    player1: { name: 'Felix AUGER-ALIASSIME', country: 'CAN', seed: 4 },
-    player2: { name: 'Roman Andres BURRUCHAGA', country: 'ARG' },
+    player1: { name: 'Felix AUGER-ALIASSIME', country: 'CAN', seed: 3 },
+    player2: { name: 'Dino PRIZMIC', country: 'CRO' },
     nextMatchId: 'r3-m5',
   },
   {
     id: 'r2-m10', round: 2, position: 10,
-    player1: { name: 'Luca VAN ASSCHE', country: 'FRA' },
-    player2: { name: 'Brandon NAKASHIMA', country: 'USA', seed: 31 },
+    player1: { name: 'Nicolas MEJIA', country: 'COL', status: 'Q' },
+    player2: { name: 'Michael ZHENG', country: 'USA', status: 'Q' },
     nextMatchId: 'r3-m5',
   },
   {
     id: 'r2-m11', round: 2, position: 11,
-    player1: { name: 'Adolfo Daniel VALLEJO', country: 'PAR' },
-    player2: { name: 'Moise KOUAME', country: 'FRA', status: 'W' },
+    player1: { name: 'Alejandro DAVIDOVICH FOKINA', country: 'ESP', seed: 22 },
+    player2: { name: 'Fabian MAROZSAN', country: 'HUN' },
     nextMatchId: 'r3-m6',
   },
   {
     id: 'r2-m12', round: 2, position: 12,
-    player1: { name: 'Alejandro TABILO', country: 'CHI' },
-    player2: { name: 'Valentin VACHEROT', country: 'MON', seed: 16 },
+    player1: { name: 'Marton FUCSOVICS', country: 'HUN' },
+    player2: { name: 'Learner TIEN', country: 'USA', seed: 16 },
     nextMatchId: 'r3-m6',
   },
+
+  // --- Section 4 (positions 13-16) ---
   {
     id: 'r2-m13', round: 2, position: 13,
-    player1: { name: 'Flavio COBOLLI', country: 'ITA', seed: 10 },
-    player2: { name: 'Yibing WU', country: 'CHN' },
+    player1: { name: 'Roman SAFIULLIN', country: '---', status: 'Q' },
+    player2: { name: 'Botic VAN DE ZANDSCHULP', country: 'NED' },
     nextMatchId: 'r3-m7',
   },
   {
     id: 'r2-m14', round: 2, position: 14,
-    player1: { name: 'Facundo DIAZ ACOSTA', country: 'ARG', status: 'Q' },
-    player2: { name: 'Learner TIEN', country: 'USA', seed: 18 },
+    player1: { name: 'Jesper DE JONG', country: 'NED' },
+    player2: { name: 'Joao FONSECA', country: 'BRA', seed: 24 },
     nextMatchId: 'r3-m7',
   },
   {
     id: 'r2-m15', round: 2, position: 15,
-    player1: { name: 'Francisco CERUNDOLO', country: 'ARG', seed: 25 },
-    player2: { name: 'Hugo GASTON', country: 'FRA', status: 'W' },
+    player1: { name: 'Arthur RINDERKNECH', country: 'FRA', seed: 25 },
+    player2: { name: 'Martin DAMM', country: 'USA' },
     nextMatchId: 'r3-m8',
   },
   {
     id: 'r2-m16', round: 2, position: 16,
-    player1: { name: 'Zachary SVAJDA', country: 'USA' },
-    player2: { name: 'Adam WALTON', country: 'AUS', status: 'W' },
+    player1: { name: 'Stefanos TSITSIPAS', country: 'GRE' },
+    player2: { name: 'Novak DJOKOVIC', country: 'SRB', seed: 7 },
     nextMatchId: 'r3-m8',
   },
 
@@ -114,102 +118,106 @@ export const tournamentData: Match[] = [
   // BOTTOM HALF (positions 17-32)
   // ============================================================
 
-  // --- Quarter 3: De Minaur section (17-24) ---
+  // --- Section 5 (positions 17-20) ---
   {
     id: 'r2-m17', round: 2, position: 17,
-    player1: { name: 'Alex DE MINAUR', country: 'AUS', seed: 8 },
-    player2: { name: 'Alexander BLOCKX', country: 'BEL' },
+    player1: { name: 'Alex DE MINAUR', country: 'AUS', seed: 5 },
+    player2: { name: 'Adrian MANNARINO', country: 'FRA' },
     nextMatchId: 'r3-m9',
   },
   {
     id: 'r2-m18', round: 2, position: 18,
-    player1: { name: 'Mariano NAVONE', country: 'ARG' },
-    player2: { name: 'Jakub MENSIK', country: 'CZE', seed: 26 },
+    player1: { name: 'Zachary SVAJDA', country: 'USA' },
+    player2: { name: 'Kamil MAJCHRAK', country: 'POL' },
     nextMatchId: 'r3-m9',
   },
   {
     id: 'r2-m19', round: 2, position: 19,
-    player1: { name: 'Nuno BORGES', country: 'POR' },
-    player2: { name: 'Miomir KECMANOVIC', country: 'SRB' },
+    player1: { name: 'Karen KHACHANOV', country: '---', seed: 19 },
+    player2: { name: 'Yannick HANFMANN', country: 'GER' },
     nextMatchId: 'r3-m10',
   },
   {
     id: 'r2-m20', round: 2, position: 20,
-    player1: { name: 'Camilo UGO CARABELLI', country: 'ARG' },
-    player2: { name: 'Andrey RUBLEV', country: '---', seed: 11 },
+    player1: { name: 'James DUCKWORTH', country: 'AUS' },
+    player2: { name: 'Flavio COBOLLI', country: 'ITA', seed: 9 },
     nextMatchId: 'r3-m10',
   },
+
+  // --- Section 6 (positions 21-24) ---
   {
     id: 'r2-m21', round: 2, position: 21,
-    player1: { name: 'Casper RUUD', country: 'NOR', seed: 15 },
-    player2: { name: 'Hamad MEDJEDOVIC', country: 'SRB' },
+    player1: { name: 'Jakub MENSIK', country: 'CZE', seed: 15 },
+    player2: { name: 'Grigor DIMITROV', country: 'BUL', status: 'W' },
     nextMatchId: 'r3-m11',
   },
   {
     id: 'r2-m22', round: 2, position: 22,
-    player1: { name: 'Lorenzo SONEGO', country: 'ITA' },
-    player2: { name: 'Tommy PAUL', country: 'USA', seed: 24 },
+    player1: { name: 'Matteo BERRETTINI', country: 'ITA' },
+    player2: { name: 'Arthur FILS', country: 'FRA', seed: 20 },
     nextMatchId: 'r3-m11',
   },
   {
     id: 'r2-m23', round: 2, position: 23,
-    player1: { name: 'Joao FONSECA', country: 'BRA', seed: 28 },
-    player2: { name: 'Dino PRIZMIC', country: 'CRO' },
+    player1: { name: 'Zizou BERGS', country: 'BEL' },
+    player2: { name: 'Jaime FARIA', country: 'POR', status: 'Q' },
     nextMatchId: 'r3-m12',
   },
   {
     id: 'r2-m24', round: 2, position: 24,
-    player1: { name: 'Valentin ROYER', country: 'FRA' },
-    player2: { name: 'Novak DJOKOVIC', country: 'SRB', seed: 3 },
+    player1: { name: 'Arthur FERY', country: 'GBR', status: 'W' },
+    player2: { name: 'Otto VIRTANEN', country: 'FIN', status: 'Q' },
     nextMatchId: 'r3-m12',
   },
 
-  // --- Quarter 4: Zverev section (25-32) ---
+  // --- Section 7 (positions 25-28) ---
   {
     id: 'r2-m25', round: 2, position: 25,
-    player1: { name: 'Nishesh BASAVAREDDY', country: 'USA', status: 'W' },
-    player2: { name: 'Alex MICHELSEN', country: 'USA' },
+    player1: { name: 'Taylor FRITZ', country: 'USA', seed: 6 },
+    player2: { name: 'Patrick KYPSON', country: 'USA' },
     nextMatchId: 'r3-m13',
   },
   {
     id: 'r2-m26', round: 2, position: 26,
-    player1: { name: 'James DUCKWORTH', country: 'AUS' },
-    player2: { name: 'Rafael JODAR', country: 'ESP', seed: 27 },
+    player1: { name: 'Gabriel DIALLO', country: 'CAN' },
+    player2: { name: 'Lorenzo SONEGO', country: 'ITA' },
     nextMatchId: 'r3-m13',
   },
   {
     id: 'r2-m27', round: 2, position: 27,
-    player1: { name: 'Alejandro DAVIDOVICH FOKINA', country: 'ESP', seed: 21 },
-    player2: { name: 'Thiago Agustin TIRANTE', country: 'ARG' },
+    player1: { name: 'Frances TIAFOE', country: 'USA', seed: 17 },
+    player2: { name: 'Jan CHOINSKI', country: 'GBR' },
     nextMatchId: 'r3-m14',
   },
   {
     id: 'r2-m28', round: 2, position: 28,
-    player1: { name: 'Thanasi KOKKINAKIS', country: 'AUS' },
-    player2: { name: 'Pablo CARRENO BUSTA', country: 'ESP' },
+    player1: { name: 'Kyrian JACQUET', country: 'FRA', status: 'Q' },
+    player2: { name: 'Alexander BUBLIK', country: 'KAZ', seed: 10 },
     nextMatchId: 'r3-m14',
   },
+
+  // --- Section 8 (positions 29-32) ---
   {
     id: 'r2-m29', round: 2, position: 29,
-    player1: { name: 'Karen KHACHANOV', country: '---', seed: 13 },
-    player2: { name: 'Marco TRUNGELLITI', country: 'ARG' },
+    player1: { name: 'Jiri LEHECEK', country: 'CZE', seed: 13 },
+    player2: { name: 'Alex MOLCAN', country: 'SVK' },
     nextMatchId: 'r3-m15',
   },
   {
     id: 'r2-m30', round: 2, position: 30,
-    player1: { name: 'Federico CINA', country: 'ITA', status: 'Q' },
-    player2: { name: 'Jesper DE JONG', country: 'NED', status: 'L' },
+    player1: { name: 'Alex MICHELSEN', country: 'USA' },
+    player2: { name: 'Jaume MUNAR', country: 'ESP' },
     nextMatchId: 'r3-m15',
   },
   {
     id: 'r2-m31', round: 2, position: 31,
-    player1: { name: 'Ugo HUMBERT', country: 'FRA', seed: 32 },
-    player2: { name: 'Quentin HALYS', country: 'FRA' },
+    player1: { name: 'Quentin HALYS', country: 'FRA' },
+    player2: { name: 'Marcos GIRON', country: 'USA' },
     nextMatchId: 'r3-m16',
   },
   {
     id: 'r2-m32', round: 2, position: 32,
-    player1: { name: 'Tomas MACHAC', country: 'CZE' },
+    player1: { name: 'Valentin ROYER', country: 'FRA' },
     player2: { name: 'Alexander ZVEREV', country: 'GER', seed: 2 },
     nextMatchId: 'r3-m16',
   },

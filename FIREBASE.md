@@ -1,6 +1,6 @@
 # Firebase Realtime Database
 
-User brackets are stored under `frenchOpen2026/brackets/{userId}`. Official results are stored under `frenchOpen2026/official`. These are **sibling** paths: updating `official` does not read or write `brackets`.
+User brackets are stored under `wimbledon2026/brackets/{userId}`. Official results are stored under `wimbledon2026/official`. These are **sibling** paths: updating `official` does not read or write `brackets`.
 
 If you can save user brackets but **not** the official bracket, your security rules almost certainly allow `brackets` but omit `official`. Fix it in the console:
 
