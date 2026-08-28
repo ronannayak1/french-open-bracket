@@ -1,16 +1,6 @@
 import { useState, useEffect } from 'react';
 
-/** Round of 64 (app round 2) — users may pick and submit from this point onward. */
-const PICKS_OPEN_TIME = new Date('2026-07-02T10:00:00Z').getTime();
-
-export function isPickWindowOpen(): boolean {
-  return Date.now() >= PICKS_OPEN_TIME;
-}
-
-/** True only before the pick window opens (not after submit — use `submitted` for that). */
-export function isLocked(): boolean {
-  return !isPickWindowOpen();
-}
+const LOCK_TIME = new Date('2026-08-30T15:00:00Z').getTime(); // 11 AM ET, first round
 
 export default function Countdown() {
   const [now, setNow] = useState(Date.now());

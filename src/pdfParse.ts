@@ -1,7 +1,7 @@
 import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist';
 import pdfWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import { tournamentData } from './data';
-import { Match, OfficialResult, Player } from './types';
+import { Match, OfficialResult, Player, FIRST_ROUND, TOURNAMENT_ROUNDS } from './types';
 import {
   abbrevMatchesPlayer,
   opponentSearchTokens,
@@ -154,7 +154,7 @@ function resolvePlayersForMatch(
   match: Match,
   results: Record<string, OfficialResult>
 ): { player1: Player | null; player2: Player | null } {
-  if (match.round === 2) {
+  if (match.round === FIRST_ROUND) {
     return { player1: match.player1, player2: match.player2 };
   }
   const feeders = getFeedersForMatch(match.id);
@@ -350,7 +350,7 @@ export function applyPdfResultsToOfficial(
   const results: Record<string, OfficialResult> = { ...existing };
   const skippedMatches: string[] = [];
 
-  const rounds = [2, 3, 4, 5, 6, 7];
+  const rounds = TOURNAMENT_ROUNDS;
   let minCharIndex = 0;
   for (const round of rounds) {
     const matches = tournamentData
