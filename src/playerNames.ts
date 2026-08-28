@@ -46,7 +46,7 @@ export function normalizeAbbrevKey(abbrev: string): string {
     .toUpperCase();
 }
 
-/** All abbrev variants likely used in Roland-Garros PDFs */
+/** All abbrev variants likely used in Wimbledon PDFs */
 export function abbrevVariantsForPlayer(fullName: string): string[] {
   const variants = new Set<string>();
   const primary = playerToAbbrev(fullName);

@@ -1,4 +1,5 @@
 import { initializeApp } from 'firebase/app';
+import { getAnalytics, isSupported } from 'firebase/analytics';
 import {
   getDatabase,
   ref,

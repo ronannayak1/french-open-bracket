@@ -412,6 +412,8 @@ export const tournamentData: Match[] = [
     player1: null, player2: null,
     nextMatchId: 'r3-m2',
   },
+
+  // --- Section 2 (positions 5-8) ---
   {
     id: 'r2-m5', round: 2, position: 5,
     player1: null, player2: null,
@@ -452,6 +454,8 @@ export const tournamentData: Match[] = [
     player1: null, player2: null,
     nextMatchId: 'r3-m6',
   },
+
+  // --- Section 4 (positions 13-16) ---
   {
     id: 'r2-m13', round: 2, position: 13,
     player1: null, player2: null,
@@ -492,6 +496,8 @@ export const tournamentData: Match[] = [
     player1: null, player2: null,
     nextMatchId: 'r3-m10',
   },
+
+  // --- Section 6 (positions 21-24) ---
   {
     id: 'r2-m21', round: 2, position: 21,
     player1: null, player2: null,
@@ -532,6 +538,8 @@ export const tournamentData: Match[] = [
     player1: null, player2: null,
     nextMatchId: 'r3-m14',
   },
+
+  // --- Section 8 (positions 29-32) ---
   {
     id: 'r2-m29', round: 2, position: 29,
     player1: null, player2: null,

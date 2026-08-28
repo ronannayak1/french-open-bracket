@@ -18,7 +18,7 @@ type Page = 'bracket' | 'view' | 'official' | 'leaderboard';
 
 export default function App() {
   const [userId, setUserId] = useState<string | null>(() =>
-    localStorage.getItem('rg_user')
+    localStorage.getItem('wimbledon_user')
   );
   const [displayName, setDisplayName] = useState<string>('');
   const [picks, setPicks] = useState<Record<string, string>>({});
@@ -66,9 +66,11 @@ export default function App() {
 
   const bracketReadOnly = submitted || locked;
 
+  const canEditBracket = !submitted && !locked;
+
   const handleLogin = useCallback((id: string) => {
     setUserId(id);
-    localStorage.setItem('rg_user', id);
+    localStorage.setItem('wimbledon_user', id);
   }, []);
 
   const handleLogout = useCallback(() => {
@@ -76,7 +78,7 @@ export default function App() {
     setDisplayName('');
     setPicks({});
     setSubmitted(false);
-    localStorage.removeItem('rg_user');
+    localStorage.removeItem('wimbledon_user');
   }, []);
 
   const handlePickWinner = useCallback(
@@ -101,17 +103,17 @@ export default function App() {
   );
 
   const handleSave = useCallback(async () => {
-    if (!userId || locked) return;
+    if (!userId || !canEditBracket) return;
     setSaving(true);
     try {
       await saveBracket({ userId, displayName, picks, submitted: false });
     } finally {
       setSaving(false);
     }
-  }, [userId, displayName, picks, locked]);
+  }, [userId, displayName, picks, canEditBracket]);
 
   const handleSubmit = useCallback(async () => {
-    if (!userId || locked) return;
+    if (!userId || !canEditBracket) return;
     const totalNeeded = getTotalPicksNeeded();
     const totalPicked = Object.keys(picks).length;
     if (totalPicked < totalNeeded) {
@@ -133,10 +135,10 @@ export default function App() {
     } finally {
       setSaving(false);
     }
-  }, [userId, displayName, picks, locked]);
+  }, [userId, displayName, picks, canEditBracket]);
 
   const handleReset = useCallback(async () => {
-    if (!userId || locked) return;
+    if (!userId || submitted) return;
     if (!window.confirm('Clear all your picks and start over?')) return;
     setPicks({});
     setSubmitted(false);
@@ -146,7 +148,7 @@ export default function App() {
     } finally {
       setSaving(false);
     }
-  }, [userId, displayName, locked]);
+  }, [userId, displayName, submitted]);
 
   const handleSaveName = useCallback(async () => {
     if (!userId || !nameInput.trim()) return;
@@ -262,28 +264,28 @@ export default function App() {
                 <span className="toolbar-submitted">Submitted</span>
               )}
               {locked && !submitted && (
-                <span className="toolbar-locked">Locked</span>
+                <span className="toolbar-locked">Opens soon</span>
               )}
             </div>
             <div className="toolbar-actions">
               <button
                 className="btn btn--secondary"
                 onClick={handleSave}
-                disabled={saving || bracketReadOnly}
+                disabled={saving || !canEditBracket}
               >
                 {saving ? 'Saving...' : 'Save Draft'}
               </button>
               <button
                 className="btn btn--primary"
                 onClick={handleSubmit}
-                disabled={saving || bracketReadOnly}
+                disabled={saving || !canEditBracket}
               >
-                {submitted ? 'Submitted' : locked ? 'Locked' : 'Submit Bracket'}
+                {submitted ? 'Submitted' : locked ? 'Not open yet' : 'Submit Bracket'}
               </button>
               <button
                 className="btn btn--danger"
                 onClick={handleReset}
-                disabled={saving || locked}
+                disabled={saving || submitted}
               >
                 Reset
               </button>
@@ -297,7 +299,13 @@ export default function App() {
             currentPoints={myScore.decided > 0 ? myScore.total : undefined}
           />
 
-          {bracketReadOnly && (
+          {canEditBracket && (
+            <div className="official-hint">
+              Pick winners from the Round of 64 onward. Submit when finished — your bracket locks after submission and cannot be edited.
+            </div>
+          )}
+
+          {submitted && (
             <div className="official-hint">
               Tap any match to see picks, scores, and official stats.
             </div>

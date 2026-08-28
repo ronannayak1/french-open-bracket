@@ -10,29 +10,26 @@ export default function Countdown() {
     return () => clearInterval(id);
   }, []);
 
-  const diff = LOCK_TIME - now;
-
-  if (diff <= 0) {
+  if (isPickWindowOpen()) {
     return (
-      <div className="countdown countdown--locked">
-        <span className="countdown-icon">🔒</span>
-        <span className="countdown-label">Brackets are locked</span>
+      <div className="countdown countdown--open">
+        <span className="countdown-icon">✓</span>
+        <span className="countdown-label">Round 2 picks open</span>
       </div>
     );
   }
 
+  const diff = PICKS_OPEN_TIME - now;
   const hours = Math.floor(diff / 3_600_000);
   const minutes = Math.floor((diff % 3_600_000) / 60_000);
   const seconds = Math.floor((diff % 60_000) / 1_000);
-
   const pad = (n: number) => String(n).padStart(2, '0');
-
   const urgent = diff < 3_600_000;
 
   return (
     <div className={`countdown ${urgent ? 'countdown--urgent' : ''}`}>
       <span className="countdown-icon">⏱</span>
-      <span className="countdown-label">Lock in</span>
+      <span className="countdown-label">Picks open in</span>
       <div className="countdown-digits">
         <span className="cd-unit">
           <span className="cd-num">{pad(hours)}</span>
@@ -51,8 +48,4 @@ export default function Countdown() {
       </div>
     </div>
   );
-}
-
-export function isLocked(): boolean {
-  return Date.now() >= LOCK_TIME;
 }

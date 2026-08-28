@@ -1,4 +1,4 @@
-const LOGO_SRC = `${import.meta.env.BASE_URL}roland-garros-logo.png`;
+const LOGO_SRC = `${import.meta.env.BASE_URL}wimbledon-logo.png`;
 
 /** Source image is 1024×682 */
 const LOGO_ASPECT = 1024 / 682;
