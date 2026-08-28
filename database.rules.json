@@ -1,6 +1,6 @@
 {
   "rules": {
-    "frenchOpen2026": {
+    "usopen2026": {
       "brackets": {
         ".read": true,
         "$uid": {

@@ -1,5 +1,5 @@
 import { Match } from '../types';
-import { rolandGarrosMatchUrl } from '../rolandGarrosUrl';
+import { usOpenMatchUrl } from '../usOpenUrl';
 
 interface MatchMatchupHeaderProps {
   match: Match;
@@ -14,7 +14,7 @@ export default function MatchMatchupHeader({ match }: MatchMatchupHeaderProps) {
         <span>{match.player2?.name ?? 'TBD'}</span>
       </div>
       <a
-        href={rolandGarrosMatchUrl(match)}
+        href={usOpenMatchUrl(match)}
         target="_blank"
         rel="noopener noreferrer"
         className="match-detail-official-link"

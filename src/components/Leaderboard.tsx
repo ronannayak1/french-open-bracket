@@ -1,4 +1,4 @@
-import { UserBracket, OfficialResult, ROUND_LABELS, ROUND_POINTS } from '../types';
+import { UserBracket, OfficialResult, ROUND_LABELS, ROUND_POINTS, TOURNAMENT_ROUNDS } from '../types';
 import { scoreBracketForLeaderboard, getTournamentMaxPoints } from '../bracketEngine';
 import { tournamentData } from '../data';
 
@@ -22,7 +22,7 @@ export default function Leaderboard({
 
   const tournamentMax = getTournamentMaxPoints();
 
-  const rounds = [2, 3, 4, 5, 6, 7] as const;
+  const rounds = TOURNAMENT_ROUNDS;
 
   function roundBreakdown(
     picks: Record<string, string>,

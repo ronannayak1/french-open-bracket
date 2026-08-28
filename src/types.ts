@@ -31,7 +31,14 @@ export interface OfficialResult {
 
 export type Section = 'top' | 'bottom';
 
+export const FIRST_ROUND = 1;
+export const FINAL_ROUND = 7;
+
+/** All pickable rounds in bracket order (R1 through Final). */
+export const TOURNAMENT_ROUNDS = [1, 2, 3, 4, 5, 6, 7] as const;
+
 export const ROUND_LABELS: Record<number, string> = {
+  1: '1st Round',
   2: '2nd Round',
   3: '3rd Round',
   4: '4th Round',
@@ -40,14 +47,15 @@ export const ROUND_LABELS: Record<number, string> = {
   7: 'Final',
 };
 
-/** Points double each round: R2=1, R3=2, R4=4, QF=8, SF=16, F=32 */
+/** Points double each round: R1=1, R2=2, R3=4, R4=8, QF=16, SF=32, F=64 */
 export const ROUND_POINTS: Record<number, number> = {
-  2: 1,
-  3: 2,
-  4: 4,
-  5: 8,
-  6: 16,
-  7: 32,
+  1: 1,
+  2: 2,
+  3: 4,
+  4: 8,
+  5: 16,
+  6: 32,
+  7: 64,
 };
 
 export interface UserAccount {

@@ -28,7 +28,7 @@ export default function Login({ onLogin }: LoginProps) {
       <div className="login-card">
         <div className="login-logo">
           <BrandLogo height={100} className="login-logo-img" />
-          <h1>Roland-Garros 2026</h1>
+          <h1>US Open 2026</h1>
           <h2>Bracket Challenge</h2>
         </div>
         <p className="login-subtitle">Pick your champion. Fill your bracket.</p>

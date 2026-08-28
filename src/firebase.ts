@@ -10,20 +10,21 @@ import { UserBracket, OfficialResult } from './types';
 import { filterOfficialResultsToValidWinners } from './bracketEngine';
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyAmGflQbDLB_li65J6KYRisp7JjfsB2hiI',
-  authDomain: 'aopool-2a0a5.firebaseapp.com',
-  databaseURL: 'https://aopool-2a0a5-default-rtdb.firebaseio.com',
-  projectId: 'aopool-2a0a5',
-  storageBucket: 'aopool-2a0a5.firebasestorage.app',
-  messagingSenderId: '800811470720',
-  appId: '1:800811470720:web:1f5036ece9d91c1ebf3b65',
-};
+    apiKey: "AIzaSyAmGflQbDLB_li65J6KYRisp7JjfsB2hiI",
+    authDomain: "aopool-2a0a5.firebaseapp.com",
+    databaseURL: "https://aopool-2a0a5-default-rtdb.firebaseio.com",
+    projectId: "aopool-2a0a5",
+    storageBucket: "aopool-2a0a5.firebasestorage.app",
+    messagingSenderId: "800811470720",
+    appId: "1:800811470720:web:a9508613badf930abf3b65",
+    measurementId: "G-CHVR3CBJ0V"
+  };
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-const BRACKET_PATH = 'frenchOpen2026/brackets';
-const OFFICIAL_PATH = 'frenchOpen2026/official';
+const BRACKET_PATH = 'usopen2026/brackets';
+const OFFICIAL_PATH = 'usopen2026/official';
 
 // --- User brackets ---
 

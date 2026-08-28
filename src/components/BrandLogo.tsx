@@ -17,7 +17,7 @@ export function logoSrc(): string {
 export default function BrandLogo({
   height = 40,
   className = '',
-  alt = 'Roland-Garros',
+  alt = 'US Open',
 }: BrandLogoProps) {
   const width = Math.round(height * LOGO_ASPECT);
 

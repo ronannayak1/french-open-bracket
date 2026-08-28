@@ -179,7 +179,7 @@ export default function App() {
             <BrandLogo height={40} className="nav-brand-logo" />
             <div className="nav-brand-text">
               <h1>
-                <span className="nav-brand-rg">ROLAND-GARROS</span>{' '}
+                <span className="nav-brand-rg">US OPEN</span>{' '}
                 <span className="nav-brand-accent">2026</span>
               </h1>
               <div className="nav-brand-sub">
