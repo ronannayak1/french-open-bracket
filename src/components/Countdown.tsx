@@ -1,6 +1,16 @@
 import { useState, useEffect } from 'react';
 
-const LOCK_TIME = new Date('2026-08-30T15:00:00Z').getTime(); // 11 AM ET, first round
+/** Users may pick and submit from this point onward. */
+const PICKS_OPEN_TIME = new Date('2026-08-30T15:00:00Z').getTime(); // 11 AM ET, first round
+
+export function isPickWindowOpen(): boolean {
+  return Date.now() >= PICKS_OPEN_TIME;
+}
+
+/** True only before the pick window opens (not after submit — use `submitted` for that). */
+export function isLocked(): boolean {
+  return !isPickWindowOpen();
+}
 
 export default function Countdown() {
   const [now, setNow] = useState(Date.now());
@@ -14,7 +24,7 @@ export default function Countdown() {
     return (
       <div className="countdown countdown--open">
         <span className="countdown-icon">✓</span>
-        <span className="countdown-label">Round 2 picks open</span>
+        <span className="countdown-label">Picks open</span>
       </div>
     );
   }
