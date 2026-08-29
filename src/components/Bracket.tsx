@@ -5,10 +5,8 @@ import {
   getBracketHeights,
   getBracketTotalHeight,
   getColumnHeight,
-  getFinalTop,
   getMatchTop,
   getBlockSize,
-  getSemiTop,
 } from '../bracketLayout';
 import MatchCard from './MatchCard';
 import BracketRoundFocus from './BracketRoundFocus';
@@ -241,10 +239,10 @@ export default function Bracket({
             />
           ))}
 
-          <div className="round-column round-column--center round-column--semi">
+          <div className="round-column round-column--center round-column--semi round-column--semi-left">
             <div className="round-label">{ROUND_LABELS[6]}</div>
             <div
-              className="round-matches round-matches--positioned"
+              className="round-matches round-matches--positioned round-matches--center-cluster"
               style={{ height: totalHeight }}
             >
               {semis
@@ -253,7 +251,6 @@ export default function Bracket({
                   <div
                     key={match.id}
                     className="round-match-cell"
-                    style={{ top: getSemiTop(1, slotHeight, cardHeight) }}
                   >
                     <MatchCard
                       match={match}
@@ -273,14 +270,13 @@ export default function Bracket({
           <div className="round-column round-column--center round-column--final">
             <div className="round-label round-label--final">{ROUND_LABELS[7]}</div>
             <div
-              className="round-matches round-matches--positioned"
+              className="round-matches round-matches--positioned round-matches--center-cluster"
               style={{ height: totalHeight }}
             >
               {final.map((match) => (
                 <div
                   key={match.id}
                   className="final-wrapper final-wrapper--aligned round-match-cell"
-                  style={{ top: getFinalTop(slotHeight, cardHeight) }}
                 >
                   <div className="trophy trophy--floated">🏆</div>
                   <MatchCard
@@ -303,10 +299,10 @@ export default function Bracket({
             </div>
           </div>
 
-          <div className="round-column round-column--center round-column--semi">
+          <div className="round-column round-column--center round-column--semi round-column--semi-right">
             <div className="round-label">{ROUND_LABELS[6]}</div>
             <div
-              className="round-matches round-matches--positioned"
+              className="round-matches round-matches--positioned round-matches--center-cluster"
               style={{ height: totalHeight }}
             >
               {semis
@@ -315,7 +311,6 @@ export default function Bracket({
                   <div
                     key={match.id}
                     className="round-match-cell"
-                    style={{ top: getSemiTop(2, slotHeight, cardHeight) }}
                   >
                     <MatchCard
                       match={match}

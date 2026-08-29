@@ -993,6 +993,7 @@ body {
 
 .final-wrapper--aligned {
   gap: 0;
+  position: relative;
 }
 
 .final-wrapper--aligned .trophy--floated {
@@ -2354,6 +2355,33 @@ body {
   width: 100%;
   min-width: 0;
   padding: 0 5px;
+  align-items: flex-start;
+}
+
+.bracket-grid--overview .round-matches--center-cluster {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: stretch;
+}
+
+.bracket-grid--overview .round-matches--center-cluster > .round-match-cell {
+  position: relative;
+  top: auto;
+  left: auto;
+  right: auto;
+}
+
+.bracket-grid--overview .round-column--semi-left .round-match-cell {
+  transform: translateY(-34px);
+}
+
+.bracket-grid--overview .round-column--semi-right .round-match-cell {
+  transform: translateY(34px);
+}
+
+.bracket-grid--overview .round-column--final .round-match-cell {
+  transform: none;
 }
 
 .bracket-grid.bracket-grid--overview .round-column,
