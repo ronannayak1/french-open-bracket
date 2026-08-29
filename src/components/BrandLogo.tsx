@@ -1,7 +1,7 @@
-const LOGO_SRC = `${import.meta.env.BASE_URL}wimbledon-logo.png`;
+const LOGO_SRC = `${import.meta.env.BASE_URL}us-open-logo.png`;
 
-/** Source image is 1024×682 */
-const LOGO_ASPECT = 1024 / 682;
+/** Source image is 300×300 */
+const LOGO_ASPECT = 1;
 
 interface BrandLogoProps {
   /** Display height in CSS pixels; width follows image aspect ratio. */

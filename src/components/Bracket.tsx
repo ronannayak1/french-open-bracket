@@ -214,6 +214,17 @@ export default function Bracket({
         Full bracket — tap any match to open that round and make picks.
       </p>
       <div className="bracket-overview-viewport">
+        <div className="bracket-sponsor" aria-label="Sponsored by Bain & Company">
+          <span className="bracket-sponsor-label">Made possible by</span>
+          <img
+            src={`${import.meta.env.BASE_URL}bain-logo.png`}
+            alt="Bain & Company"
+            className="bracket-sponsor-logo"
+            width={256}
+            height={28}
+            decoding="async"
+          />
+        </div>
         <div className="bracket-grid bracket-grid--overview" style={{ minHeight: totalHeight }}>
           {leftRounds.map(({ round, matches: roundMatches }) => (
             <RoundColumn
@@ -230,7 +241,7 @@ export default function Bracket({
             />
           ))}
 
-          <div className="round-column round-column--center">
+          <div className="round-column round-column--center round-column--semi">
             <div className="round-label">{ROUND_LABELS[6]}</div>
             <div
               className="round-matches round-matches--positioned"
@@ -268,13 +279,14 @@ export default function Bracket({
               {final.map((match) => (
                 <div
                   key={match.id}
-                  className="final-wrapper round-match-cell"
+                  className="final-wrapper final-wrapper--aligned round-match-cell"
                   style={{ top: getFinalTop(slotHeight, cardHeight) }}
                 >
-                  <div className="trophy">🏆</div>
+                  <div className="trophy trophy--floated">🏆</div>
                   <MatchCard
                     match={match}
                     readOnly={readOnly}
+                    compact
                     overviewMode
                     officialWinner={officialResults?.[match.id]?.winnerName}
                     showScore={showScores}
@@ -282,7 +294,7 @@ export default function Bracket({
                     onMatchFocus={handleMatchFocus}
                   />
                   {match.winnerName && (
-                    <div className="champion-label">
+                    <div className="champion-label champion-label--floated">
                       CHAMPION: {match.winnerName}
                     </div>
                   )}
@@ -291,7 +303,7 @@ export default function Bracket({
             </div>
           </div>
 
-          <div className="round-column round-column--center">
+          <div className="round-column round-column--center round-column--semi">
             <div className="round-label">{ROUND_LABELS[6]}</div>
             <div
               className="round-matches round-matches--positioned"
