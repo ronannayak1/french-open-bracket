@@ -1,4 +1,5 @@
 import { Match, Player } from '../types';
+import type { MouseEvent } from 'react';
 import { eliminatedSlashKey } from '../bracketEngine';
 
 interface MatchCardProps {
@@ -6,16 +7,14 @@ interface MatchCardProps {
   onPickWinner?: (matchId: string, playerName: string) => void;
   readOnly?: boolean;
   compact?: boolean;
-  /** The official winner for this match, used to color-code user picks */
   officialWinner?: string;
-  /** Show score below winner */
   showScore?: boolean;
-  /** Player slots that should show an elimination slash (official loss, user advanced). */
   eliminatedSlashKeys?: Set<string>;
-  /** Click match to open score detail (official bracket view mode) */
   onViewScore?: (matchId: string) => void;
-  /** Click any match to open detail modal (official bracket view mode) */
   onViewMatch?: (matchId: string) => void;
+  /** Click match card to zoom into round view (overview mode). */
+  onMatchFocus?: (match: Match) => void;
+  highlighted?: boolean;
 }
 
 function PlayerSlot({
@@ -53,10 +52,16 @@ function PlayerSlot({
         ? 'player-slot--official'
         : '';
 
+  const handleClick = (e: MouseEvent) => {
+    if (!canSelect) return;
+    e.stopPropagation();
+    onSelect?.();
+  };
+
   return (
     <div
       className={`player-slot ${isWinner ? 'player-slot--winner' : ''} ${canSelect ? 'player-slot--selectable' : ''} ${verdictClass}`}
-      onClick={canSelect ? onSelect : undefined}
+      onClick={handleClick}
       title={player.name}
     >
       <span className="player-tag">{tag}</span>
@@ -82,10 +87,14 @@ export default function MatchCard({
   eliminatedSlashKeys,
   onViewScore,
   onViewMatch,
+  onMatchFocus,
+  highlighted = false,
 }: MatchCardProps) {
   const canPick = !readOnly && !!onPickWinner;
-  const canViewMatch = readOnly && !!onViewMatch;
-  const canViewScore = readOnly && !!match.score && !!onViewScore && !onViewMatch;
+  const inRoundFocus = readOnly && !!onViewMatch && !onMatchFocus;
+  const canViewMatch = inRoundFocus;
+  const canViewScore = inRoundFocus && !!match.score && !!onViewScore && !onViewMatch;
+  const canFocus = !!onMatchFocus;
   const p1CanSelect = canPick && !!match.player1;
   const p2CanSelect = canPick && !!match.player2;
 
@@ -105,17 +114,29 @@ export default function MatchCard({
     return null;
   }
 
+  function handleCardClick() {
+    if (canViewMatch) {
+      onViewMatch!(match.id);
+    } else if (canViewScore) {
+      onViewScore!(match.id);
+    } else if (canFocus) {
+      onMatchFocus!(match);
+    }
+  }
+
   return (
     <div
-      className={`match-card ${compact ? 'match-card--compact' : ''} ${canViewMatch || canViewScore ? 'match-card--view-score' : ''}`}
-      onClick={
+      className={`match-card ${compact ? 'match-card--compact' : ''} ${canViewMatch || canViewScore ? 'match-card--view-score' : ''} ${canFocus ? 'match-card--focusable' : ''} ${highlighted ? 'match-card--highlighted' : ''}`}
+      onClick={canViewMatch || canViewScore || canFocus ? handleCardClick : undefined}
+      title={
         canViewMatch
-          ? () => onViewMatch!(match.id)
+          ? 'View match details'
           : canViewScore
-            ? () => onViewScore!(match.id)
-            : undefined
+            ? 'View match score'
+            : canFocus
+              ? 'Zoom into this round'
+              : undefined
       }
-      title={canViewMatch ? 'View match details' : canViewScore ? 'View match score' : undefined}
     >
       <PlayerSlot
         player={match.player1}
@@ -145,6 +166,11 @@ export default function MatchCard({
       {!match.score && canViewMatch && (
         <div className="match-score match-score--hint-only">
           <span className="match-score-hint">Tap for details</span>
+        </div>
+      )}
+      {canFocus && !canPick && (
+        <div className="match-score match-score--hint-only">
+          <span className="match-score-hint">Tap to zoom in</span>
         </div>
       )}
     </div>

@@ -138,7 +138,7 @@ export default function App() {
   }, [userId, displayName, picks, canEditBracket]);
 
   const handleReset = useCallback(async () => {
-    if (!userId || submitted) return;
+    if (!userId || submitted || locked) return;
     if (!window.confirm('Clear all your picks and start over?')) return;
     setPicks({});
     setSubmitted(false);
@@ -148,7 +148,7 @@ export default function App() {
     } finally {
       setSaving(false);
     }
-  }, [userId, displayName, submitted]);
+  }, [userId, displayName, submitted, locked]);
 
   const handleSaveName = useCallback(async () => {
     if (!userId || !nameInput.trim()) return;
@@ -285,7 +285,7 @@ export default function App() {
               <button
                 className="btn btn--danger"
                 onClick={handleReset}
-                disabled={saving || submitted}
+                disabled={saving || submitted || locked}
               >
                 Reset
               </button>
@@ -301,7 +301,13 @@ export default function App() {
 
           {canEditBracket && (
             <div className="official-hint">
-              Pick winners from the Round of 64 onward. Submit when finished — your bracket locks after submission and cannot be edited.
+              Brackets are open for picks and submission. Submit before the deadline above — once you submit, your bracket locks and cannot be edited.
+            </div>
+          )}
+
+          {locked && !submitted && (
+            <div className="official-hint official-hint--locked">
+              The submission deadline has passed. Brackets are locked and can no longer be edited.
             </div>
           )}
 

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 
-const LOCK_TIME = new Date('2026-08-30T15:00:00Z').getTime(); // 11 AM ET, first round
+/** Global deadline — brackets lock for everyone at this time (11 AM ET, first round). */
+export const LOCK_TIME = new Date('2026-08-30T15:00:00Z').getTime();
 
 export function isLocked(): boolean {
   return Date.now() >= LOCK_TIME;
@@ -28,15 +29,13 @@ export default function Countdown() {
   const hours = Math.floor(diff / 3_600_000);
   const minutes = Math.floor((diff % 3_600_000) / 60_000);
   const seconds = Math.floor((diff % 60_000) / 1_000);
-
   const pad = (n: number) => String(n).padStart(2, '0');
-
   const urgent = diff < 3_600_000;
 
   return (
-    <div className={`countdown ${urgent ? 'countdown--urgent' : ''}`}>
-      <span className="countdown-icon">⏱</span>
-      <span className="countdown-label">Lock in</span>
+    <div className={`countdown countdown--open ${urgent ? 'countdown--urgent' : ''}`}>
+      <span className="countdown-icon">✓</span>
+      <span className="countdown-label">Picks open — lock in</span>
       <div className="countdown-digits">
         <span className="cd-unit">
           <span className="cd-num">{pad(hours)}</span>

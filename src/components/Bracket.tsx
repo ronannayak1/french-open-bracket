@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef, useLayoutEffect, useCallback } from 'react';
 import { Match, ROUND_LABELS, OfficialResult } from '../types';
 import { getMatchesByRound, getEliminatedSlashKeys } from '../bracketEngine';
 import {
@@ -11,6 +11,7 @@ import {
   getSemiTop,
 } from '../bracketLayout';
 import MatchCard from './MatchCard';
+import BracketRoundFocus from './BracketRoundFocus';
 
 function useCompactBracket() {
   const [compact, setCompact] = useState(() =>
@@ -52,6 +53,7 @@ function RoundColumn({
   eliminatedSlashKeys,
   onViewScore,
   onViewMatch,
+  onMatchFocus,
 }: {
   matches: Match[];
   round: number;
@@ -64,6 +66,7 @@ function RoundColumn({
   eliminatedSlashKeys?: Set<string>;
   onViewScore?: (matchId: string) => void;
   onViewMatch?: (matchId: string) => void;
+  onMatchFocus?: (match: Match) => void;
 }) {
   const { cardHeight, slotHeight } = getBracketHeights(compact, !!showScores);
   const columnHeight = getColumnHeight(matches.length, round, slotHeight);
@@ -86,12 +89,13 @@ function RoundColumn({
               match={match}
               onPickWinner={onPickWinner}
               readOnly={readOnly}
-              compact={round >= 3}
+              compact
               officialWinner={officialResults?.[match.id]?.winnerName}
               showScore={showScores}
               eliminatedSlashKeys={eliminatedSlashKeys}
               onViewScore={onViewScore}
               onViewMatch={onViewMatch}
+              onMatchFocus={onMatchFocus}
             />
             {round >= 1 && round <= 6 && (
               <Connector
@@ -199,13 +203,87 @@ export default function Bracket({
     { round: 1, matches: r1.bottom },
   ];
 
+  const [focusRound, setFocusRound] = useState<number | null>(null);
+  const [highlightMatchId, setHighlightMatchId] = useState<string | null>(null);
+  const [overviewScale, setOverviewScale] = useState(1);
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  const handleMatchFocus = useCallback((match: Match) => {
+    setFocusRound(match.round);
+    setHighlightMatchId(match.id);
+  }, []);
+
+  const exitFocus = useCallback(() => {
+    setFocusRound(null);
+    setHighlightMatchId(null);
+  }, []);
+
+  useLayoutEffect(() => {
+    if (focusRound !== null) return;
+
+    const updateScale = () => {
+      const viewport = viewportRef.current;
+      const content = contentRef.current;
+      if (!viewport || !content) return;
+      const sw = content.scrollWidth;
+      const sh = content.scrollHeight;
+      if (sw === 0 || sh === 0) return;
+      const sx = viewport.clientWidth / sw;
+      const sy = viewport.clientHeight / sh;
+      setOverviewScale(Math.min(sx, sy, 1) * 0.96);
+    };
+
+    updateScale();
+    const ro = new ResizeObserver(updateScale);
+    if (viewportRef.current) ro.observe(viewportRef.current);
+    window.addEventListener('resize', updateScale);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', updateScale);
+    };
+  }, [focusRound, matches, compactLayout, showScores, totalHeight]);
+
+  if (focusRound !== null) {
+    return (
+      <BracketRoundFocus
+        round={focusRound}
+        matches={matches}
+        highlightMatchId={highlightMatchId}
+        onRoundChange={(round) => {
+          setFocusRound(round);
+          setHighlightMatchId(null);
+        }}
+        onBack={exitFocus}
+        onPickWinner={onPickWinner}
+        readOnly={readOnly}
+        officialResults={officialResults}
+        showScores={showScores}
+        eliminatedSlashKeys={eliminatedSlashKeys}
+        onViewScore={onViewScore}
+        onViewMatch={readOnly ? onViewMatch : undefined}
+      />
+    );
+  }
+
+  const overviewMatchProps = {
+    onMatchFocus: handleMatchFocus,
+    onViewMatch: undefined as undefined,
+    onViewScore: undefined as undefined,
+  };
+
   return (
     <div className="bracket-scroll-wrap">
-      <p className="bracket-scroll-hint" aria-hidden="true">
-        Swipe sideways to explore the full bracket
+      <p className="bracket-overview-hint">
+        Full bracket — tap a match to zoom into that round. Click a player to pick.
       </p>
-      <div className="bracket-scroll">
-        <div className="bracket-grid" style={{ minHeight: totalHeight }}>
+      <div className="bracket-overview-viewport" ref={viewportRef}>
+        <div
+          className="bracket-overview-scaler"
+          ref={contentRef}
+          style={{ transform: `scale(${overviewScale})` }}
+        >
+          <div className="bracket-grid" style={{ minHeight: totalHeight }}>
         {leftRounds.map(({ round, matches: roundMatches }) => (
           <RoundColumn
             key={`left-${round}`}
@@ -218,8 +296,7 @@ export default function Bracket({
             showScores={showScores}
             compact={compactLayout}
             eliminatedSlashKeys={eliminatedSlashKeys}
-            onViewScore={onViewScore}
-            onViewMatch={onViewMatch}
+            {...overviewMatchProps}
           />
         ))}
 
@@ -241,11 +318,11 @@ export default function Bracket({
                     match={match}
                     onPickWinner={onPickWinner}
                     readOnly={readOnly}
+                    compact
                     officialWinner={officialResults?.[match.id]?.winnerName}
                     showScore={showScores}
                     eliminatedSlashKeys={eliminatedSlashKeys}
-                    onViewScore={onViewScore}
-                    onViewMatch={onViewMatch}
+                    {...overviewMatchProps}
                   />
                 </div>
               ))}
@@ -272,8 +349,7 @@ export default function Bracket({
                   officialWinner={officialResults?.[match.id]?.winnerName}
                   showScore={showScores}
                   eliminatedSlashKeys={eliminatedSlashKeys}
-                  onViewScore={onViewScore}
-                  onViewMatch={onViewMatch}
+                  {...overviewMatchProps}
                 />
                 {match.winnerName && (
                   <div className="champion-label">
@@ -303,11 +379,11 @@ export default function Bracket({
                     match={match}
                     onPickWinner={onPickWinner}
                     readOnly={readOnly}
+                    compact
                     officialWinner={officialResults?.[match.id]?.winnerName}
                     showScore={showScores}
                     eliminatedSlashKeys={eliminatedSlashKeys}
-                    onViewScore={onViewScore}
-                    onViewMatch={onViewMatch}
+                    {...overviewMatchProps}
                   />
                 </div>
               ))}
@@ -326,10 +402,10 @@ export default function Bracket({
             showScores={showScores}
             compact={compactLayout}
             eliminatedSlashKeys={eliminatedSlashKeys}
-            onViewScore={onViewScore}
-            onViewMatch={onViewMatch}
+            {...overviewMatchProps}
           />
         ))}
+          </div>
         </div>
       </div>
     </div>
