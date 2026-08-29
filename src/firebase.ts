@@ -5,6 +5,7 @@ import {
   ref,
   set,
   get,
+  update,
   onValue,
 } from 'firebase/database';
 import { UserBracket, OfficialResult } from './types';
@@ -34,7 +35,7 @@ export async function saveBracket(bracket: UserBracket): Promise<void> {
     displayName: bracket.displayName,
     picks: bracket.picks,
     submitted: bracket.submitted,
-    submittedAt: bracket.submittedAt ?? null,
+    submittedAt: bracket.submitted ? (bracket.submittedAt ?? Date.now()) : null,
   });
 }
 
@@ -78,9 +79,21 @@ export function onBracketsChange(
 
 export async function updateDisplayName(
   userId: string,
-  displayName: string
+  displayName: string,
+  existing?: Pick<UserBracket, 'picks' | 'submitted' | 'submittedAt'>
 ): Promise<void> {
-  await set(ref(db, `${BRACKET_PATH}/${userId}/displayName`), displayName);
+  const userRef = ref(db, `${BRACKET_PATH}/${userId}`);
+  const snapshot = await get(userRef);
+  if (snapshot.exists()) {
+    await update(userRef, { displayName });
+    return;
+  }
+  await set(userRef, {
+    displayName,
+    picks: existing?.picks ?? {},
+    submitted: existing?.submitted ?? false,
+    submittedAt: existing?.submitted ? (existing.submittedAt ?? Date.now()) : null,
+  });
 }
 
 // --- Official bracket results ---

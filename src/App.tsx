@@ -16,6 +16,8 @@ import { tournamentData } from './data';
 
 type Page = 'bracket' | 'view' | 'official' | 'leaderboard';
 
+type ActionStatus = { type: 'success' | 'error'; message: string };
+
 export default function App() {
   const [userId, setUserId] = useState<string | null>(() =>
     localStorage.getItem('wimbledon_user')
@@ -23,6 +25,9 @@ export default function App() {
   const [displayName, setDisplayName] = useState<string>('');
   const [picks, setPicks] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
+  const [submittedAt, setSubmittedAt] = useState<number | undefined>();
+  const [bracketLoaded, setBracketLoaded] = useState(false);
+  const [actionStatus, setActionStatus] = useState<ActionStatus | null>(null);
   const [allBrackets, setAllBrackets] = useState<UserBracket[]>([]);
   const [officialResults, setOfficialResults] = useState<Record<string, OfficialResult>>({});
   const [page, setPage] = useState<Page>('bracket');
@@ -48,19 +53,39 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (!userId) return;
+    if (!actionStatus) return;
+    const id = setTimeout(() => setActionStatus(null), 4000);
+    return () => clearTimeout(id);
+  }, [actionStatus]);
+
+  useEffect(() => {
+    if (!userId) {
+      setBracketLoaded(false);
+      return;
+    }
+    setBracketLoaded(false);
     loadBracket(userId).then((bracket) => {
       if (bracket) {
         setPicks(bracket.picks);
         setSubmitted(bracket.submitted);
+        setSubmittedAt(bracket.submittedAt);
         setDisplayName(bracket.displayName || userId);
       } else {
         const acct = USER_ACCOUNTS.find((a) => a.id === userId);
         const defaultName = acct?.defaultName || userId;
         setPicks({});
         setSubmitted(false);
+        setSubmittedAt(undefined);
         setDisplayName(defaultName);
       }
+    }).catch((err) => {
+      console.error('Failed to load bracket', err);
+      setActionStatus({
+        type: 'error',
+        message: 'Could not load your bracket from Firebase. Refresh and try again.',
+      });
+    }).finally(() => {
+      setBracketLoaded(true);
     });
   }, [userId]);
 
@@ -78,6 +103,9 @@ export default function App() {
     setDisplayName('');
     setPicks({});
     setSubmitted(false);
+    setSubmittedAt(undefined);
+    setBracketLoaded(false);
+    setActionStatus(null);
     localStorage.removeItem('wimbledon_user');
   }, []);
 
@@ -103,17 +131,27 @@ export default function App() {
   );
 
   const handleSave = useCallback(async () => {
-    if (!userId || !canEditBracket) return;
+    if (!userId || !canEditBracket || !bracketLoaded || saving) return;
     setSaving(true);
+    setActionStatus(null);
     try {
       await saveBracket({ userId, displayName, picks, submitted: false });
+      setSubmitted(false);
+      setSubmittedAt(undefined);
+      setActionStatus({ type: 'success', message: 'Draft saved to Firebase.' });
+    } catch (err) {
+      console.error('Failed to save draft', err);
+      setActionStatus({
+        type: 'error',
+        message: 'Could not save draft. Check your connection and try again.',
+      });
     } finally {
       setSaving(false);
     }
-  }, [userId, displayName, picks, canEditBracket]);
+  }, [userId, displayName, picks, canEditBracket, bracketLoaded, saving]);
 
   const handleSubmit = useCallback(async () => {
-    if (!userId || !canEditBracket) return;
+    if (!userId || !canEditBracket || !bracketLoaded || saving) return;
     const totalNeeded = getTotalPicksNeeded();
     const totalPicked = Object.keys(picks).length;
     if (totalPicked < totalNeeded) {
@@ -123,40 +161,72 @@ export default function App() {
       }
     }
     setSaving(true);
+    setActionStatus(null);
     try {
+      const now = Date.now();
       await saveBracket({
         userId,
         displayName,
         picks,
         submitted: true,
-        submittedAt: Date.now(),
+        submittedAt: now,
       });
       setSubmitted(true);
+      setSubmittedAt(now);
+      setActionStatus({ type: 'success', message: 'Bracket submitted and saved to Firebase.' });
+    } catch (err) {
+      console.error('Failed to submit bracket', err);
+      setActionStatus({
+        type: 'error',
+        message: 'Could not submit bracket. Check your connection and try again.',
+      });
     } finally {
       setSaving(false);
     }
-  }, [userId, displayName, picks, canEditBracket]);
+  }, [userId, displayName, picks, canEditBracket, bracketLoaded, saving]);
 
   const handleReset = useCallback(async () => {
-    if (!userId || submitted || locked) return;
+    if (!userId || submitted || locked || saving || !bracketLoaded) return;
     if (!window.confirm('Clear all your picks and start over?')) return;
-    setPicks({});
-    setSubmitted(false);
     setSaving(true);
+    setActionStatus(null);
     try {
+      setPicks({});
+      setSubmitted(false);
+      setSubmittedAt(undefined);
       await saveBracket({ userId, displayName, picks: {}, submitted: false });
+      setActionStatus({ type: 'success', message: 'Bracket reset and saved.' });
+    } catch (err) {
+      console.error('Failed to reset bracket', err);
+      setActionStatus({
+        type: 'error',
+        message: 'Could not reset bracket. Try again.',
+      });
     } finally {
       setSaving(false);
     }
-  }, [userId, displayName, submitted, locked]);
+  }, [userId, displayName, submitted, locked, saving, bracketLoaded]);
 
   const handleSaveName = useCallback(async () => {
-    if (!userId || !nameInput.trim()) return;
+    if (!userId || !nameInput.trim() || saving) return;
     const newName = nameInput.trim();
-    setDisplayName(newName);
-    setEditingName(false);
-    await updateDisplayName(userId, newName);
-  }, [userId, nameInput]);
+    setSaving(true);
+    setActionStatus(null);
+    try {
+      await updateDisplayName(userId, newName, { picks, submitted, submittedAt });
+      setDisplayName(newName);
+      setEditingName(false);
+      setActionStatus({ type: 'success', message: 'Bracket name saved.' });
+    } catch (err) {
+      console.error('Failed to save bracket name', err);
+      setActionStatus({
+        type: 'error',
+        message: 'Could not save name. Check your connection and try again.',
+      });
+    } finally {
+      setSaving(false);
+    }
+  }, [userId, nameInput, picks, submitted, submittedAt, saving]);
 
   if (!userId) {
     return <Login onLogin={handleLogin} />;
@@ -191,8 +261,6 @@ export default function App() {
             </div>
           </div>
 
-          <Countdown />
-
           <NavTabs
             page={page}
             onNavigate={setPage}
@@ -200,7 +268,10 @@ export default function App() {
             variant="header"
           />
 
-          <div className="nav-user">
+          <div className="nav-right">
+            <Countdown />
+
+            <div className="nav-user">
             {editingName ? (
               <div className="nav-name-edit">
                 <input
@@ -215,7 +286,9 @@ export default function App() {
                   maxLength={20}
                   placeholder="Enter bracket name"
                 />
-                <button className="nav-name-save" onClick={handleSaveName}>Save</button>
+                <button className="nav-name-save" onClick={handleSaveName} disabled={saving || !nameInput.trim()}>
+                  {saving ? 'Saving...' : 'Save'}
+                </button>
                 <button className="nav-name-cancel" onClick={() => setEditingName(false)}>Cancel</button>
               </div>
             ) : (
@@ -236,8 +309,18 @@ export default function App() {
               Sign Out
             </button>
           </div>
+          </div>
         </div>
       </nav>
+
+      {actionStatus && (
+        <div
+          className={`action-status action-status--${actionStatus.type}`}
+          role="status"
+        >
+          {actionStatus.message}
+        </div>
+      )}
 
       <nav className="nav-bottom-bar" aria-label="Mobile navigation">
         <NavTabs
@@ -271,14 +354,14 @@ export default function App() {
               <button
                 className="btn btn--secondary"
                 onClick={handleSave}
-                disabled={saving || !canEditBracket}
+                disabled={saving || !canEditBracket || !bracketLoaded}
               >
-                {saving ? 'Saving...' : 'Save Draft'}
+                {saving ? 'Saving...' : !bracketLoaded ? 'Loading...' : 'Save Draft'}
               </button>
               <button
                 className="btn btn--primary"
                 onClick={handleSubmit}
-                disabled={saving || !canEditBracket}
+                disabled={saving || !canEditBracket || !bracketLoaded}
               >
                 {submitted ? 'Submitted' : locked ? 'Locked' : 'Submit Bracket'}
               </button>

@@ -220,8 +220,8 @@ export default function Bracket({
             src={`${import.meta.env.BASE_URL}bain-logo.png`}
             alt="Bain & Company"
             className="bracket-sponsor-logo"
-            width={256}
-            height={28}
+            width={320}
+            height={32}
             decoding="async"
           />
         </div>

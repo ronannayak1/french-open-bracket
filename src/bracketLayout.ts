@@ -41,20 +41,14 @@ export function getSemiTop(
   slotHeight: number,
   cardHeight: number
 ): number {
-  const halfBlock = 16 * getBlockSize(FIRST_ROUND, slotHeight);
-  const centerY = halfBlock / 2;
-  const y = position === 1 ? centerY : halfBlock + centerY;
-  return y - cardHeight / 2;
+  return getMatchTop(position - 1, 6, slotHeight, cardHeight);
 }
 
 export function getFinalTop(
   slotHeight: number,
   cardHeight: number
 ): number {
-  const halfBlock = 16 * getBlockSize(FIRST_ROUND, slotHeight);
-  const semi1 = halfBlock / 2;
-  const semi2 = halfBlock + halfBlock / 2;
-  return (semi1 + semi2) / 2 - cardHeight / 2;
+  return getMatchTop(0, 7, slotHeight, cardHeight);
 }
 
 export function getBracketTotalHeight(slotHeight: number): number {
