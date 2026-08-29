@@ -290,6 +290,41 @@ export default function App() {
                 Bracket Challenge
               </div>
             </div>
+            <div className="nav-bracket-identity">
+              {editingName ? (
+                <div className="nav-name-edit">
+                  <input
+                    className="nav-name-input"
+                    value={nameInput}
+                    onChange={(e) => setNameInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleSaveName();
+                      if (e.key === 'Escape') setEditingName(false);
+                    }}
+                    autoFocus
+                    maxLength={20}
+                    placeholder="Enter bracket name"
+                  />
+                  <button className="nav-name-save" onClick={handleSaveName} disabled={saving || !nameInput.trim()}>
+                    {saving ? 'Saving...' : 'Save'}
+                  </button>
+                  <button className="nav-name-cancel" onClick={() => setEditingName(false)}>Cancel</button>
+                </div>
+              ) : (
+                <>
+                  <span className="nav-bracket-name" title={displayName}>{displayName}</span>
+                  <button
+                    className="nav-rename-btn"
+                    onClick={() => {
+                      setNameInput(displayName);
+                      setEditingName(true);
+                    }}
+                  >
+                    Rename
+                  </button>
+                </>
+              )}
+            </div>
           </div>
 
           <NavTabs
@@ -303,43 +338,10 @@ export default function App() {
             <Countdown />
 
             <div className="nav-user">
-            {editingName ? (
-              <div className="nav-name-edit">
-                <input
-                  className="nav-name-input"
-                  value={nameInput}
-                  onChange={(e) => setNameInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') handleSaveName();
-                    if (e.key === 'Escape') setEditingName(false);
-                  }}
-                  autoFocus
-                  maxLength={20}
-                  placeholder="Enter bracket name"
-                />
-                <button className="nav-name-save" onClick={handleSaveName} disabled={saving || !nameInput.trim()}>
-                  {saving ? 'Saving...' : 'Save'}
-                </button>
-                <button className="nav-name-cancel" onClick={() => setEditingName(false)}>Cancel</button>
-              </div>
-            ) : (
-              <>
-                <span className="nav-user-name-display">{displayName}</span>
-                <button
-                  className="nav-rename-btn"
-                  onClick={() => {
-                    setNameInput(displayName);
-                    setEditingName(true);
-                  }}
-                >
-                  Rename
-                </button>
-              </>
-            )}
-            <button className="nav-logout" onClick={handleLogout}>
-              Sign Out
-            </button>
-          </div>
+              <button className="nav-logout" onClick={handleLogout}>
+                Sign Out
+              </button>
+            </div>
           </div>
         </div>
       </nav>
