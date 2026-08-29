@@ -35,27 +35,30 @@ export function getColumnHeight(
   return matchCount * blockSize;
 }
 
+const R1_MATCHES_PER_COLUMN = 32;
+
 export function getBracketTotalHeight(slotHeight: number): number {
-  return 32 * getBlockSize(FIRST_ROUND, slotHeight);
+  return R1_MATCHES_PER_COLUMN * getBlockSize(FIRST_ROUND, slotHeight);
 }
 
-/** Final match card — vertically centered on the bracket spine. */
+/** Final — vertically centered between the top and bottom R1 matches. */
 export function getFinalTop(slotHeight: number, cardHeight: number): number {
-  return getBracketTotalHeight(slotHeight) / 2 - cardHeight / 2;
+  const lastIndex = R1_MATCHES_PER_COLUMN - 1;
+  const topCenter =
+    getMatchTop(0, FIRST_ROUND, slotHeight, cardHeight) + cardHeight / 2;
+  const bottomCenter =
+    getMatchTop(lastIndex, FIRST_ROUND, slotHeight, cardHeight) + cardHeight / 2;
+  return (topCenter + bottomCenter) / 2 - cardHeight / 2;
 }
 
-/**
- * Semifinal beside the final. Each column shows one semi; position 1 sits
- * just above the final, position 2 just below, keeping all three in a tight
- * horizontal cluster at the bracket center.
- */
+/** Semifinals flank the final in a tight vertical cluster. */
 export function getSemiTop(
   position: number,
   slotHeight: number,
   cardHeight: number
 ): number {
-  const centerTop = getFinalTop(slotHeight, cardHeight);
-  const step = cardHeight + 8;
-  if (position === 1) return centerTop - step;
-  return centerTop + step;
+  const finalTop = getFinalTop(slotHeight, cardHeight);
+  const step = cardHeight + 10;
+  if (position === 1) return finalTop - step;
+  return finalTop + step;
 }

@@ -5,8 +5,10 @@ import {
   getBracketHeights,
   getBracketTotalHeight,
   getColumnHeight,
+  getFinalTop,
   getMatchTop,
   getBlockSize,
+  getSemiTop,
 } from '../bracketLayout';
 import MatchCard from './MatchCard';
 import BracketRoundFocus from './BracketRoundFocus';
@@ -251,6 +253,7 @@ export default function Bracket({
                   <div
                     key={match.id}
                     className="round-match-cell"
+                    style={{ top: getSemiTop(1, slotHeight, cardHeight) }}
                   >
                     <MatchCard
                       match={match}
@@ -277,6 +280,7 @@ export default function Bracket({
                 <div
                   key={match.id}
                   className="final-wrapper final-wrapper--aligned round-match-cell"
+                  style={{ top: getFinalTop(slotHeight, cardHeight) }}
                 >
                   <div className="trophy trophy--floated">🏆</div>
                   <MatchCard
@@ -311,6 +315,7 @@ export default function Bracket({
                   <div
                     key={match.id}
                     className="round-match-cell"
+                    style={{ top: getSemiTop(2, slotHeight, cardHeight) }}
                   >
                     <MatchCard
                       match={match}

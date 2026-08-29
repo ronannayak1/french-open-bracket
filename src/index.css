@@ -2358,30 +2358,16 @@ body {
   align-items: flex-start;
 }
 
-.bracket-grid--overview .round-matches--center-cluster {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: stretch;
-}
-
-.bracket-grid--overview .round-matches--center-cluster > .round-match-cell {
+.bracket-grid.bracket-grid--overview .round-matches--center-cluster {
   position: relative;
-  top: auto;
-  left: auto;
-  right: auto;
+  flex: none;
 }
 
-.bracket-grid--overview .round-column--semi-left .round-match-cell {
-  transform: translateY(-34px);
-}
-
-.bracket-grid--overview .round-column--semi-right .round-match-cell {
-  transform: translateY(34px);
-}
-
-.bracket-grid--overview .round-column--final .round-match-cell {
-  transform: none;
+.bracket-grid.bracket-grid--overview .round-matches--center-cluster > .round-match-cell {
+  position: absolute;
+  left: 0;
+  right: 0;
+  width: 100%;
 }
 
 .bracket-grid.bracket-grid--overview .round-column,
