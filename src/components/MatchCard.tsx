@@ -56,7 +56,10 @@ function PlayerSlot({
         : '';
 
   const handleClick = (e: MouseEvent) => {
-    if (overviewMode) return;
+    if (overviewMode) {
+      e.preventDefault();
+      return;
+    }
     if (!canSelect) return;
     e.stopPropagation();
     onSelect?.();
@@ -64,8 +67,8 @@ function PlayerSlot({
 
   return (
     <div
-      className={`player-slot ${isWinner ? 'player-slot--winner' : ''} ${canSelect ? 'player-slot--selectable' : ''} ${verdictClass}`}
-      onClick={handleClick}
+      className={`player-slot ${isWinner ? 'player-slot--winner' : ''} ${canSelect && !overviewMode ? 'player-slot--selectable' : ''} ${verdictClass}`}
+      onClick={overviewMode ? undefined : handleClick}
       title={player.name}
     >
       <span className="player-tag">{tag}</span>
@@ -99,7 +102,6 @@ export default function MatchCard({
   const inRoundModal = !overviewMode && readOnly && !!onViewMatch;
   const canViewMatch = inRoundModal;
   const canViewScore = inRoundModal && !!match.score && !!onViewScore && !onViewMatch;
-  const canFocus = overviewMode && !!onMatchFocus;
   const p1CanSelect = canPick && !!match.player1;
   const p2CanSelect = canPick && !!match.player2;
 
@@ -119,9 +121,10 @@ export default function MatchCard({
     return null;
   }
 
-  function handleCardClick() {
-    if (canFocus) {
-      onMatchFocus!(match);
+  function handleCardClick(e: MouseEvent) {
+    if (overviewMode && onMatchFocus) {
+      e.stopPropagation();
+      onMatchFocus(match);
       return;
     }
     if (canViewMatch) {
@@ -131,14 +134,14 @@ export default function MatchCard({
     }
   }
 
-  const interactive = canFocus || canViewMatch || canViewScore;
+  const interactive = (overviewMode && !!onMatchFocus) || canViewMatch || canViewScore;
 
   return (
     <div
-      className={`match-card ${compact ? 'match-card--compact' : ''} ${interactive ? 'match-card--view-score' : ''} ${canFocus ? 'match-card--focusable' : ''} ${highlighted ? 'match-card--highlighted' : ''}`}
+      className={`match-card ${compact ? 'match-card--compact' : ''} ${overviewMode ? 'match-card--overview' : ''} ${interactive ? 'match-card--view-score' : ''} ${overviewMode ? 'match-card--focusable' : ''} ${highlighted ? 'match-card--highlighted' : ''}`}
       onClick={interactive ? handleCardClick : undefined}
       title={
-        canFocus
+        overviewMode
           ? 'Open round view'
           : canViewMatch
             ? 'View match details'
@@ -179,7 +182,7 @@ export default function MatchCard({
           <span className="match-score-hint">Tap for details</span>
         </div>
       )}
-      {canFocus && (
+      {overviewMode && (
         <div className="match-score match-score--hint-only">
           <span className="match-score-hint">Tap to open round</span>
         </div>

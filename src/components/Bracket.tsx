@@ -209,7 +209,7 @@ export default function Bracket({
   }, []);
 
   return (
-    <div className="bracket-scroll-wrap">
+    <div className="bracket-scroll-wrap bracket-scroll-wrap--edge-to-edge">
       <p className="bracket-overview-hint">
         Full bracket — tap any match to open that round and make picks.
       </p>
