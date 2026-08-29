@@ -16,6 +16,7 @@ interface BracketRoundFocusProps {
   eliminatedSlashKeys?: Set<string>;
   onViewScore?: (matchId: string) => void;
   onViewMatch?: (matchId: string) => void;
+  bracketName?: string;
 }
 
 export default function BracketRoundFocus({
@@ -31,6 +32,7 @@ export default function BracketRoundFocus({
   eliminatedSlashKeys,
   onViewScore,
   onViewMatch,
+  bracketName,
 }: BracketRoundFocusProps) {
   const listRef = useRef<HTMLDivElement>(null);
   const roundMatches = matches
@@ -105,7 +107,10 @@ export default function BracketRoundFocus({
 
             <div className="bracket-round-matches-scroll" ref={listRef}>
               {round === FINAL_ROUND && roundMatches[0]?.winnerName && (
-                <ChampionPreview winnerName={roundMatches[0].winnerName} />
+                <ChampionPreview
+                  winnerName={roundMatches[0].winnerName}
+                  bracketName={bracketName}
+                />
               )}
               {roundMatches.map((match) => (
                 <div

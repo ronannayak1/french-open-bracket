@@ -1,5 +1,4 @@
 import { Match } from '../types';
-import { usOpenMatchUrl } from '../usOpenUrl';
 
 interface MatchMatchupHeaderProps {
   match: Match;
@@ -13,14 +12,6 @@ export default function MatchMatchupHeader({ match }: MatchMatchupHeaderProps) {
         <span className="match-detail-vs">vs</span>
         <span>{match.player2?.name ?? 'TBD'}</span>
       </div>
-      <a
-        href={usOpenMatchUrl(match)}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="match-detail-official-link"
-      >
-        Official Stats
-      </a>
     </div>
   );
 }

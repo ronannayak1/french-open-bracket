@@ -138,7 +138,7 @@ export default function BracketViewer({
       />
 
       <div className="official-hint">
-        Tap any match to see picks, scores, and official stats.
+        Tap any match to see picks and scores.
       </div>
 
       <Bracket

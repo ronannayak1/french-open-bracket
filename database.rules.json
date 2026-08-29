@@ -12,6 +12,19 @@
         ".read": true,
         ".write": true
       }
+    },
+    "wimbledon2026": {
+      "brackets": {
+        ".read": true,
+        "$uid": {
+          ".read": true,
+          ".write": true
+        }
+      },
+      "official": {
+        ".read": true,
+        ".write": true
+      }
     }
   }
 }

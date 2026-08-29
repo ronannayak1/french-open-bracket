@@ -39,6 +39,7 @@ interface BracketProps {
   showScores?: boolean;
   onViewScore?: (matchId: string) => void;
   onViewMatch?: (matchId: string) => void;
+  bracketName?: string;
 }
 
 function RoundColumn({
@@ -150,6 +151,7 @@ export default function Bracket({
   showScores = false,
   onViewScore,
   onViewMatch,
+  bracketName,
 }: BracketProps) {
   const compactLayout = useCompactBracket();
   const { cardHeight, slotHeight } = getBracketHeights(compactLayout, showScores);
@@ -366,6 +368,7 @@ export default function Bracket({
           eliminatedSlashKeys={eliminatedSlashKeys}
           onViewScore={onViewScore}
           onViewMatch={readOnly ? onViewMatch : undefined}
+          bracketName={bracketName}
         />
       )}
     </div>

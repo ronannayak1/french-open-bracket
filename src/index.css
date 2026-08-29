@@ -734,6 +734,46 @@ body {
   text-align: center;
 }
 
+.champion-preview__placeholder {
+  width: 100%;
+  max-width: 320px;
+  aspect-ratio: 4 / 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+}
+
+.champion-preview__initials {
+  font-size: 48px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: var(--clay-light);
+}
+
+.champion-preview__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 320px;
+}
+
+.champion-preview__btn {
+  flex: 1 1 120px;
+  min-width: 0;
+}
+
+.champion-preview__status {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
 .bracket-round-matches-scroll {
   flex: 1;
   overflow-y: auto;

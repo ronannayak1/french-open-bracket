@@ -11,6 +11,13 @@ const HEADSHOT_FILES: Record<string, string> = {
   'frances tiafoe': 'frances-tiafoe.jpg',
   'taylor fritz': 'taylor-fritz.png',
   'jannik sinner': 'jannik-sinner.jpg',
+  'learner tien': 'learner-tien.png',
+  'rafael jodar': 'rafael-jodar.png',
+  'lorenzo musetti': 'lorenzo-musetti.png',
+  'flavio cobolli': 'flavio-cobolli.jpg',
+  'alex de minaur': 'alex-de-minaur.png',
+  'casper ruud': 'casper-ruud.jpg',
+  'karen khachanov': 'karen-khachanov.png',
 };
 
 function normalizeName(name: string): string {

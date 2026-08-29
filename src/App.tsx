@@ -92,6 +92,7 @@ export default function App() {
   const bracketReadOnly = submitted || locked;
 
   const canEditBracket = !submitted && !locked;
+  const canUnsubmit = submitted && !locked;
 
   const handleLogin = useCallback((id: string) => {
     setUserId(id);
@@ -184,6 +185,36 @@ export default function App() {
       setSaving(false);
     }
   }, [userId, displayName, picks, canEditBracket, bracketLoaded, saving]);
+
+  const handleUnsubmit = useCallback(async () => {
+    if (!userId || !canUnsubmit || !bracketLoaded || saving) return;
+    if (
+      !window.confirm(
+        'Unsubmit your bracket? You can edit picks and submit again before the deadline.'
+      )
+    ) {
+      return;
+    }
+    setSaving(true);
+    setActionStatus(null);
+    try {
+      await saveBracket({ userId, displayName, picks, submitted: false });
+      setSubmitted(false);
+      setSubmittedAt(undefined);
+      setActionStatus({
+        type: 'success',
+        message: 'Bracket unsubmitted — you can edit and submit again.',
+      });
+    } catch (err) {
+      console.error('Failed to unsubmit bracket', err);
+      setActionStatus({
+        type: 'error',
+        message: 'Could not unsubmit bracket. Check your connection and try again.',
+      });
+    } finally {
+      setSaving(false);
+    }
+  }, [userId, displayName, picks, canUnsubmit, bracketLoaded, saving]);
 
   const handleReset = useCallback(async () => {
     if (!userId || submitted || locked || saving || !bracketLoaded) return;
@@ -360,10 +391,18 @@ export default function App() {
               </button>
               <button
                 className="btn btn--primary"
-                onClick={handleSubmit}
-                disabled={saving || !canEditBracket || !bracketLoaded}
+                onClick={canUnsubmit ? handleUnsubmit : handleSubmit}
+                disabled={saving || locked || (!canEditBracket && !canUnsubmit) || !bracketLoaded}
               >
-                {submitted ? 'Submitted' : locked ? 'Locked' : 'Submit Bracket'}
+                {saving
+                  ? 'Saving...'
+                  : !bracketLoaded
+                    ? 'Loading...'
+                    : canUnsubmit
+                      ? 'Unsubmit & Edit'
+                      : locked
+                        ? 'Locked'
+                        : 'Submit Bracket'}
               </button>
               <button
                 className="btn btn--danger"
@@ -384,7 +423,13 @@ export default function App() {
 
           {canEditBracket && (
             <div className="official-hint">
-              Brackets are open for picks and submission. Submit before the deadline above — once you submit, your bracket locks and cannot be edited.
+              Brackets are open for picks and submission. Submit before the deadline — you can unsubmit and edit again until picks lock.
+            </div>
+          )}
+
+          {canUnsubmit && (
+            <div className="official-hint">
+              Your bracket is submitted. Tap &ldquo;Unsubmit &amp; Edit&rdquo; to change picks before the deadline.
             </div>
           )}
 
@@ -394,9 +439,9 @@ export default function App() {
             </div>
           )}
 
-          {submitted && (
+          {submitted && locked && (
             <div className="official-hint">
-              Tap any match to see picks, scores, and official stats.
+              Tap any match to see picks and scores.
             </div>
           )}
 
@@ -408,6 +453,7 @@ export default function App() {
             officialResults={officialResults}
             showScores={bracketReadOnly}
             onViewMatch={bracketReadOnly ? setDetailMatchId : undefined}
+            bracketName={displayName}
           />
 
           {detailMatch && (
