@@ -703,6 +703,37 @@ body {
   font-weight: 600;
 }
 
+.champion-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.champion-preview__image {
+  width: 100%;
+  max-width: 320px;
+  max-height: 420px;
+  object-fit: cover;
+  object-position: top center;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.champion-preview__label {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  color: var(--clay-light);
+  text-align: center;
+}
+
 .bracket-round-matches-scroll {
   flex: 1;
   overflow-y: auto;

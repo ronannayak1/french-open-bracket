@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
-import { Match, OfficialResult, ROUND_LABELS, TOURNAMENT_ROUNDS } from '../types';
+import { FINAL_ROUND, Match, OfficialResult, ROUND_LABELS, TOURNAMENT_ROUNDS } from '../types';
+import ChampionPreview from './ChampionPreview';
 import MatchCard from './MatchCard';
 
 interface BracketRoundFocusProps {
@@ -103,6 +104,9 @@ export default function BracketRoundFocus({
             </div>
 
             <div className="bracket-round-matches-scroll" ref={listRef}>
+              {round === FINAL_ROUND && roundMatches[0]?.winnerName && (
+                <ChampionPreview winnerName={roundMatches[0].winnerName} />
+              )}
               {roundMatches.map((match) => (
                 <div
                   key={match.id}
