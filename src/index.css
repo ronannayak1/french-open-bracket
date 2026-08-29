@@ -546,27 +546,77 @@ body {
 
 .bracket-overview-viewport {
   width: 100%;
-  height: min(72vh, 720px);
+  max-height: min(78vh, 760px);
   min-height: 320px;
-  overflow: hidden;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
+  overflow-x: hidden;
+  overflow-y: auto;
   background: rgba(0, 0, 0, 0.15);
   border: 1px solid var(--border);
   border-radius: 12px;
+  -webkit-overflow-scrolling: touch;
 }
 
-.bracket-overview-scaler {
-  transform-origin: top center;
-  flex-shrink: 0;
+.bracket-grid--overview {
+  width: 100%;
+}
+
+.bracket-grid--overview .round-column,
+.bracket-grid--overview .round-column--center,
+.bracket-grid--overview .round-column--final {
+  flex: 1 1 0;
+  width: auto;
+  min-width: 0;
+  padding: 0 4px;
+}
+
+.bracket-grid--overview .match-card--compact {
+  font-size: 9px;
+}
+
+.bracket-grid--overview .player-name {
+  font-size: 8px;
+}
+
+.bracket-grid--overview .player-tag,
+.bracket-grid--overview .player-country {
+  font-size: 7px;
+}
+
+.bracket-grid--overview .round-label {
+  font-size: 9px;
+  padding: 4px 2px;
+}
+
+.bracket-grid--overview .match-score--hint-only {
+  display: none;
+}
+
+.bracket-round-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+}
+
+.bracket-round-modal {
+  position: relative;
+  width: min(640px, 100%);
+  max-height: min(85vh, 720px);
+  display: flex;
+  flex-direction: column;
 }
 
 .bracket-round-focus {
   display: flex;
   align-items: stretch;
   gap: 8px;
-  min-height: min(72vh, 720px);
+  min-height: min(72vh, 640px);
+  max-height: min(85vh, 720px);
 }
 
 .bracket-round-focus-main {
@@ -589,19 +639,39 @@ body {
   border-bottom: 1px solid var(--border);
 }
 
-.bracket-round-back {
-  background: none;
-  border: none;
-  color: var(--clay-light);
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  padding: 4px 0;
+.bracket-round-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0 16px 12px;
+  border-bottom: 1px solid var(--border);
 }
 
-.bracket-round-back:hover {
-  color: var(--clay);
-  text-decoration: underline;
+.bracket-round-tab {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-card);
+  color: var(--text-muted);
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.bracket-round-tab:hover {
+  border-color: var(--clay);
+  color: var(--text-primary);
+}
+
+.bracket-round-tab--active {
+  background: rgba(60, 99, 142, 0.25);
+  border-color: var(--clay-light);
+  color: var(--text-primary);
 }
 
 .bracket-round-focus-title {

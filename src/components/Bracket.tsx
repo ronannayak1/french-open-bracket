@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef, useLayoutEffect, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Match, ROUND_LABELS, OfficialResult } from '../types';
 import { getMatchesByRound, getEliminatedSlashKeys } from '../bracketEngine';
 import {
@@ -44,28 +44,22 @@ interface BracketProps {
 function RoundColumn({
   matches,
   round,
-  onPickWinner,
   readOnly,
   side,
   officialResults,
   showScores,
   compact,
   eliminatedSlashKeys,
-  onViewScore,
-  onViewMatch,
   onMatchFocus,
 }: {
   matches: Match[];
   round: number;
-  onPickWinner?: (matchId: string, playerName: string) => void;
   readOnly: boolean;
   side: 'left' | 'right';
   officialResults?: Record<string, OfficialResult>;
   showScores?: boolean;
   compact: boolean;
   eliminatedSlashKeys?: Set<string>;
-  onViewScore?: (matchId: string) => void;
-  onViewMatch?: (matchId: string) => void;
   onMatchFocus?: (match: Match) => void;
 }) {
   const { cardHeight, slotHeight } = getBracketHeights(compact, !!showScores);
@@ -87,14 +81,12 @@ function RoundColumn({
           >
             <MatchCard
               match={match}
-              onPickWinner={onPickWinner}
               readOnly={readOnly}
               compact
+              overviewMode
               officialWinner={officialResults?.[match.id]?.winnerName}
               showScore={showScores}
               eliminatedSlashKeys={eliminatedSlashKeys}
-              onViewScore={onViewScore}
-              onViewMatch={onViewMatch}
               onMatchFocus={onMatchFocus}
             />
             {round >= 1 && round <= 6 && (
@@ -205,209 +197,165 @@ export default function Bracket({
 
   const [focusRound, setFocusRound] = useState<number | null>(null);
   const [highlightMatchId, setHighlightMatchId] = useState<string | null>(null);
-  const [overviewScale, setOverviewScale] = useState(1);
-  const viewportRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
 
   const handleMatchFocus = useCallback((match: Match) => {
     setFocusRound(match.round);
     setHighlightMatchId(match.id);
   }, []);
 
-  const exitFocus = useCallback(() => {
+  const closeFocus = useCallback(() => {
     setFocusRound(null);
     setHighlightMatchId(null);
   }, []);
 
-  useLayoutEffect(() => {
-    if (focusRound !== null) return;
-
-    const updateScale = () => {
-      const viewport = viewportRef.current;
-      const content = contentRef.current;
-      if (!viewport || !content) return;
-      const sw = content.scrollWidth;
-      const sh = content.scrollHeight;
-      if (sw === 0 || sh === 0) return;
-      const sx = viewport.clientWidth / sw;
-      const sy = viewport.clientHeight / sh;
-      setOverviewScale(Math.min(sx, sy, 1) * 0.96);
-    };
-
-    updateScale();
-    const ro = new ResizeObserver(updateScale);
-    if (viewportRef.current) ro.observe(viewportRef.current);
-    window.addEventListener('resize', updateScale);
-    return () => {
-      ro.disconnect();
-      window.removeEventListener('resize', updateScale);
-    };
-  }, [focusRound, matches, compactLayout, showScores, totalHeight]);
-
-  if (focusRound !== null) {
-    return (
-      <BracketRoundFocus
-        round={focusRound}
-        matches={matches}
-        highlightMatchId={highlightMatchId}
-        onRoundChange={(round) => {
-          setFocusRound(round);
-          setHighlightMatchId(null);
-        }}
-        onBack={exitFocus}
-        onPickWinner={onPickWinner}
-        readOnly={readOnly}
-        officialResults={officialResults}
-        showScores={showScores}
-        eliminatedSlashKeys={eliminatedSlashKeys}
-        onViewScore={onViewScore}
-        onViewMatch={readOnly ? onViewMatch : undefined}
-      />
-    );
-  }
-
-  const overviewMatchProps = {
-    onMatchFocus: handleMatchFocus,
-    onViewMatch: undefined as undefined,
-    onViewScore: undefined as undefined,
-  };
-
   return (
     <div className="bracket-scroll-wrap">
       <p className="bracket-overview-hint">
-        Full bracket — tap a match to zoom into that round. Click a player to pick.
+        Full bracket — tap any match to open that round and make picks.
       </p>
-      <div className="bracket-overview-viewport" ref={viewportRef}>
-        <div
-          className="bracket-overview-scaler"
-          ref={contentRef}
-          style={{ transform: `scale(${overviewScale})` }}
-        >
-          <div className="bracket-grid" style={{ minHeight: totalHeight }}>
-        {leftRounds.map(({ round, matches: roundMatches }) => (
-          <RoundColumn
-            key={`left-${round}`}
-            matches={roundMatches}
-            round={round}
-            onPickWinner={onPickWinner}
-            readOnly={readOnly}
-            side="left"
-            officialResults={officialResults}
-            showScores={showScores}
-            compact={compactLayout}
-            eliminatedSlashKeys={eliminatedSlashKeys}
-            {...overviewMatchProps}
-          />
-        ))}
+      <div className="bracket-overview-viewport">
+        <div className="bracket-grid bracket-grid--overview" style={{ minHeight: totalHeight }}>
+          {leftRounds.map(({ round, matches: roundMatches }) => (
+            <RoundColumn
+              key={`left-${round}`}
+              matches={roundMatches}
+              round={round}
+              readOnly={readOnly}
+              side="left"
+              officialResults={officialResults}
+              showScores={showScores}
+              compact={compactLayout}
+              eliminatedSlashKeys={eliminatedSlashKeys}
+              onMatchFocus={handleMatchFocus}
+            />
+          ))}
 
-        <div className="round-column round-column--center">
-          <div className="round-label">{ROUND_LABELS[6]}</div>
-          <div
-            className="round-matches round-matches--positioned"
-            style={{ height: totalHeight }}
-          >
-            {semis
-              .filter((m) => m.position === 1)
-              .map((match) => (
-                <div
-                  key={match.id}
-                  className="round-match-cell"
-                  style={{ top: getSemiTop(1, slotHeight, cardHeight) }}
-                >
-                  <MatchCard
-                    match={match}
-                    onPickWinner={onPickWinner}
-                    readOnly={readOnly}
-                    compact
-                    officialWinner={officialResults?.[match.id]?.winnerName}
-                    showScore={showScores}
-                    eliminatedSlashKeys={eliminatedSlashKeys}
-                    {...overviewMatchProps}
-                  />
-                </div>
-              ))}
-          </div>
-        </div>
-
-        <div className="round-column round-column--center round-column--final">
-          <div className="round-label round-label--final">{ROUND_LABELS[7]}</div>
-          <div
-            className="round-matches round-matches--positioned"
-            style={{ height: totalHeight }}
-          >
-            {final.map((match) => (
-              <div
-                key={match.id}
-                className="final-wrapper round-match-cell"
-                style={{ top: getFinalTop(slotHeight, cardHeight) }}
-              >
-                <div className="trophy">🏆</div>
-                <MatchCard
-                  match={match}
-                  onPickWinner={onPickWinner}
-                  readOnly={readOnly}
-                  officialWinner={officialResults?.[match.id]?.winnerName}
-                  showScore={showScores}
-                  eliminatedSlashKeys={eliminatedSlashKeys}
-                  {...overviewMatchProps}
-                />
-                {match.winnerName && (
-                  <div className="champion-label">
-                    CHAMPION: {match.winnerName}
+          <div className="round-column round-column--center">
+            <div className="round-label">{ROUND_LABELS[6]}</div>
+            <div
+              className="round-matches round-matches--positioned"
+              style={{ height: totalHeight }}
+            >
+              {semis
+                .filter((m) => m.position === 1)
+                .map((match) => (
+                  <div
+                    key={match.id}
+                    className="round-match-cell"
+                    style={{ top: getSemiTop(1, slotHeight, cardHeight) }}
+                  >
+                    <MatchCard
+                      match={match}
+                      readOnly={readOnly}
+                      compact
+                      overviewMode
+                      officialWinner={officialResults?.[match.id]?.winnerName}
+                      showScore={showScores}
+                      eliminatedSlashKeys={eliminatedSlashKeys}
+                      onMatchFocus={handleMatchFocus}
+                    />
                   </div>
-                )}
-              </div>
-            ))}
+                ))}
+            </div>
           </div>
-        </div>
 
-        <div className="round-column round-column--center">
-          <div className="round-label">{ROUND_LABELS[6]}</div>
-          <div
-            className="round-matches round-matches--positioned"
-            style={{ height: totalHeight }}
-          >
-            {semis
-              .filter((m) => m.position === 2)
-              .map((match) => (
+          <div className="round-column round-column--center round-column--final">
+            <div className="round-label round-label--final">{ROUND_LABELS[7]}</div>
+            <div
+              className="round-matches round-matches--positioned"
+              style={{ height: totalHeight }}
+            >
+              {final.map((match) => (
                 <div
                   key={match.id}
-                  className="round-match-cell"
-                  style={{ top: getSemiTop(2, slotHeight, cardHeight) }}
+                  className="final-wrapper round-match-cell"
+                  style={{ top: getFinalTop(slotHeight, cardHeight) }}
                 >
+                  <div className="trophy">🏆</div>
                   <MatchCard
                     match={match}
-                    onPickWinner={onPickWinner}
                     readOnly={readOnly}
-                    compact
+                    overviewMode
                     officialWinner={officialResults?.[match.id]?.winnerName}
                     showScore={showScores}
                     eliminatedSlashKeys={eliminatedSlashKeys}
-                    {...overviewMatchProps}
+                    onMatchFocus={handleMatchFocus}
                   />
+                  {match.winnerName && (
+                    <div className="champion-label">
+                      CHAMPION: {match.winnerName}
+                    </div>
+                  )}
                 </div>
               ))}
+            </div>
           </div>
-        </div>
 
-        {rightRounds.map(({ round, matches: roundMatches }) => (
-          <RoundColumn
-            key={`right-${round}`}
-            matches={roundMatches}
-            round={round}
-            onPickWinner={onPickWinner}
-            readOnly={readOnly}
-            side="right"
-            officialResults={officialResults}
-            showScores={showScores}
-            compact={compactLayout}
-            eliminatedSlashKeys={eliminatedSlashKeys}
-            {...overviewMatchProps}
-          />
-        ))}
+          <div className="round-column round-column--center">
+            <div className="round-label">{ROUND_LABELS[6]}</div>
+            <div
+              className="round-matches round-matches--positioned"
+              style={{ height: totalHeight }}
+            >
+              {semis
+                .filter((m) => m.position === 2)
+                .map((match) => (
+                  <div
+                    key={match.id}
+                    className="round-match-cell"
+                    style={{ top: getSemiTop(2, slotHeight, cardHeight) }}
+                  >
+                    <MatchCard
+                      match={match}
+                      readOnly={readOnly}
+                      compact
+                      overviewMode
+                      officialWinner={officialResults?.[match.id]?.winnerName}
+                      showScore={showScores}
+                      eliminatedSlashKeys={eliminatedSlashKeys}
+                      onMatchFocus={handleMatchFocus}
+                    />
+                  </div>
+                ))}
+            </div>
           </div>
+
+          {rightRounds.map(({ round, matches: roundMatches }) => (
+            <RoundColumn
+              key={`right-${round}`}
+              matches={roundMatches}
+              round={round}
+              readOnly={readOnly}
+              side="right"
+              officialResults={officialResults}
+              showScores={showScores}
+              compact={compactLayout}
+              eliminatedSlashKeys={eliminatedSlashKeys}
+              onMatchFocus={handleMatchFocus}
+            />
+          ))}
         </div>
       </div>
+
+      {focusRound !== null && (
+        <BracketRoundFocus
+          round={focusRound}
+          matches={matches}
+          highlightMatchId={highlightMatchId}
+          onRoundChange={(round) => {
+            setFocusRound(round);
+            setHighlightMatchId(null);
+          }}
+          onClose={closeFocus}
+          onPickWinner={onPickWinner}
+          readOnly={readOnly}
+          officialResults={officialResults}
+          showScores={showScores}
+          eliminatedSlashKeys={eliminatedSlashKeys}
+          onViewScore={onViewScore}
+          onViewMatch={readOnly ? onViewMatch : undefined}
+        />
+      )}
     </div>
   );
 }
