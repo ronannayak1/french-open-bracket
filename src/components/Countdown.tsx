@@ -1,15 +1,9 @@
 import { useState, useEffect } from 'react';
 
-/** Users may pick and submit from this point onward. */
-const PICKS_OPEN_TIME = new Date('2026-08-30T15:00:00Z').getTime(); // 11 AM ET, first round
+const LOCK_TIME = new Date('2026-08-30T15:00:00Z').getTime(); // 11 AM ET, first round
 
-export function isPickWindowOpen(): boolean {
-  return Date.now() >= PICKS_OPEN_TIME;
-}
-
-/** True only before the pick window opens (not after submit — use `submitted` for that). */
 export function isLocked(): boolean {
-  return !isPickWindowOpen();
+  return Date.now() >= LOCK_TIME;
 }
 
 export default function Countdown() {
@@ -20,26 +14,29 @@ export default function Countdown() {
     return () => clearInterval(id);
   }, []);
 
-  if (isPickWindowOpen()) {
+  const diff = LOCK_TIME - now;
+
+  if (diff <= 0) {
     return (
-      <div className="countdown countdown--open">
-        <span className="countdown-icon">✓</span>
-        <span className="countdown-label">Picks open</span>
+      <div className="countdown countdown--locked">
+        <span className="countdown-icon">🔒</span>
+        <span className="countdown-label">Brackets are locked</span>
       </div>
     );
   }
 
-  const diff = PICKS_OPEN_TIME - now;
   const hours = Math.floor(diff / 3_600_000);
   const minutes = Math.floor((diff % 3_600_000) / 60_000);
   const seconds = Math.floor((diff % 60_000) / 1_000);
+
   const pad = (n: number) => String(n).padStart(2, '0');
+
   const urgent = diff < 3_600_000;
 
   return (
     <div className={`countdown ${urgent ? 'countdown--urgent' : ''}`}>
       <span className="countdown-icon">⏱</span>
-      <span className="countdown-label">Picks open in</span>
+      <span className="countdown-label">Lock in</span>
       <div className="countdown-digits">
         <span className="cd-unit">
           <span className="cd-num">{pad(hours)}</span>

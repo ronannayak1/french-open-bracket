@@ -264,7 +264,7 @@ export default function App() {
                 <span className="toolbar-submitted">Submitted</span>
               )}
               {locked && !submitted && (
-                <span className="toolbar-locked">Opens soon</span>
+                <span className="toolbar-locked">Locked</span>
               )}
             </div>
             <div className="toolbar-actions">
@@ -280,7 +280,7 @@ export default function App() {
                 onClick={handleSubmit}
                 disabled={saving || !canEditBracket}
               >
-                {submitted ? 'Submitted' : locked ? 'Not open yet' : 'Submit Bracket'}
+                {submitted ? 'Submitted' : locked ? 'Locked' : 'Submit Bracket'}
               </button>
               <button
                 className="btn btn--danger"
