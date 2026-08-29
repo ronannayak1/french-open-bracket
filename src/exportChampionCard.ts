@@ -1,4 +1,5 @@
 import { logoSrc } from './components/BrandLogo';
+import { getPlayerInitials } from './playerHeadshots';
 
 export interface ChampionCardOptions {
   winnerName: string;
@@ -94,16 +95,23 @@ export async function renderChampionCardBlob(
   ctx.fillStyle = COLORS.accent;
   ctx.fillRect(0, 0, CARD_WIDTH, 10);
 
-  const logo = await loadImage(logoSrc());
-  const logoHeight = 120;
-  const logoWidth = (logo.width / logo.height) * logoHeight;
-  ctx.drawImage(
-    logo,
-    (CARD_WIDTH - logoWidth) / 2,
-    72,
-    logoWidth,
-    logoHeight
-  );
+  try {
+    const logo = await loadImage(logoSrc());
+    const logoHeight = 120;
+    const logoWidth = (logo.width / logo.height) * logoHeight;
+    ctx.drawImage(
+      logo,
+      (CARD_WIDTH - logoWidth) / 2,
+      72,
+      logoWidth,
+      logoHeight
+    );
+  } catch {
+    ctx.fillStyle = COLORS.text;
+    ctx.font = '900 72px Inter, system-ui, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('US OPEN', CARD_WIDTH / 2, 150);
+  }
 
   ctx.textAlign = 'center';
   ctx.fillStyle = COLORS.textMuted;
@@ -202,12 +210,7 @@ function drawPhotoPlaceholder(
   h: number,
   winnerName: string
 ) {
-  const initials = winnerName
-    .split(/\s+/)
-    .map((part) => part[0])
-    .join('')
-    .slice(0, 3)
-    .toUpperCase();
+  const initials = getPlayerInitials(winnerName);
 
   ctx.fillStyle = '#1f2a38';
   ctx.fillRect(x, y, w, h);

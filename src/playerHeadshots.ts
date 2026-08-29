@@ -18,6 +18,7 @@ const HEADSHOT_FILES: Record<string, string> = {
   'alex de minaur': 'alex-de-minaur.png',
   'casper ruud': 'casper-ruud.jpg',
   'karen khachanov': 'karen-khachanov.png',
+  'arthur fils': 'arthur-fils.jpg',
 };
 
 function normalizeName(name: string): string {
@@ -28,4 +29,14 @@ export function getPlayerHeadshot(playerName: string | undefined): string | null
   if (!playerName) return null;
   const file = HEADSHOT_FILES[normalizeName(playerName)];
   return file ? `${BASE}${file}` : null;
+}
+
+export function getPlayerInitials(playerName: string): string {
+  const parts = playerName.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return '?';
+  return parts
+    .map((part) => part[0] ?? '')
+    .join('')
+    .slice(0, 3)
+    .toUpperCase();
 }

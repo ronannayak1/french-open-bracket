@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   downloadChampionCard,
   renderChampionCardBlob,
   shareChampionCard,
 } from '../exportChampionCard';
-import { getPlayerHeadshot } from '../playerHeadshots';
+import { getPlayerHeadshot, getPlayerInitials } from '../playerHeadshots';
 
 interface ChampionPreviewProps {
   winnerName: string;
@@ -18,6 +18,13 @@ export default function ChampionPreview({
   const src = getPlayerHeadshot(winnerName);
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
+  const [imageError, setImageError] = useState(false);
+
+  useEffect(() => {
+    setImageError(false);
+  }, [winnerName, src]);
+
+  const showPlaceholder = !src || imageError;
 
   async function buildCard() {
     return renderChampionCardBlob({
@@ -67,22 +74,19 @@ export default function ChampionPreview({
 
   return (
     <div className="champion-preview">
-      {src ? (
+      {showPlaceholder ? (
+        <div className="champion-preview__placeholder" aria-hidden>
+          <span className="champion-preview__initials">
+            {getPlayerInitials(winnerName)}
+          </span>
+        </div>
+      ) : (
         <img
           src={src}
           alt={winnerName}
           className="champion-preview__image"
+          onError={() => setImageError(true)}
         />
-      ) : (
-        <div className="champion-preview__placeholder" aria-hidden>
-          <span className="champion-preview__initials">
-            {winnerName
-              .split(/\s+/)
-              .map((part) => part[0])
-              .join('')
-              .slice(0, 3)}
-          </span>
-        </div>
       )}
       <p className="champion-preview__label">Your champion: {winnerName}</p>
       <div className="champion-preview__actions">
