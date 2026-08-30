@@ -2529,6 +2529,10 @@ body {
 }
 
 @media (max-width: 767px) {
+  .bracket-grid.bracket-grid--overview .round-label {
+    display: none;
+  }
+
   .bracket-grid.bracket-grid--overview .round-column,
   .bracket-grid.bracket-grid--overview .round-column--center,
   .bracket-grid.bracket-grid--overview .round-column--final {
