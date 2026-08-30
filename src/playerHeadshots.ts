@@ -19,6 +19,7 @@ const HEADSHOT_FILES: Record<string, string> = {
   'casper ruud': 'casper-ruud.jpg',
   'karen khachanov': 'karen-khachanov.png',
   'arthur fils': 'arthur-fils.jpg',
+  'nishesh basavareddy': 'nishesh-basavareddy.png',
 };
 
 function normalizeName(name: string): string {
