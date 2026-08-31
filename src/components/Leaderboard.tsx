@@ -6,12 +6,14 @@ interface LeaderboardProps {
   brackets: UserBracket[];
   officialResults: Record<string, OfficialResult>;
   currentUserId: string;
+  onViewBracket?: (userId: string) => void;
 }
 
 export default function Leaderboard({
   brackets,
   officialResults,
   currentUserId,
+  onViewBracket,
 }: LeaderboardProps) {
   const allUsers = brackets.filter((b) => b.submitted);
   const hasOfficial = Object.keys(officialResults).length > 0;
@@ -66,7 +68,21 @@ export default function Leaderboard({
           return (
             <div
               key={entry.bracket.userId}
-              className={`lb-card ${isMe ? 'lb-card--me' : ''} ${i === 0 && hasOfficial ? 'lb-card--leader' : ''}`}
+              className={`lb-card ${isMe ? 'lb-card--me' : ''} ${i === 0 && hasOfficial ? 'lb-card--leader' : ''} ${onViewBracket ? 'lb-card--clickable' : ''}`}
+              onClick={onViewBracket ? () => onViewBracket(entry.bracket.userId) : undefined}
+              onKeyDown={
+                onViewBracket
+                  ? (e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        onViewBracket(entry.bracket.userId);
+                      }
+                    }
+                  : undefined
+              }
+              role={onViewBracket ? 'button' : undefined}
+              tabIndex={onViewBracket ? 0 : undefined}
+              title={onViewBracket ? 'View full bracket' : undefined}
             >
               <div className="lb-card-rank">
                 {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`}
@@ -120,7 +136,12 @@ export default function Leaderboard({
               </thead>
               <tbody>
                 {scored.map((entry) => (
-                  <tr key={entry.bracket.userId}>
+                  <tr
+                    key={entry.bracket.userId}
+                    className={onViewBracket ? 'lb-table-row--clickable' : undefined}
+                    onClick={onViewBracket ? () => onViewBracket(entry.bracket.userId) : undefined}
+                    title={onViewBracket ? 'View full bracket' : undefined}
+                  >
                     <td className="lb-td-name">
                       {entry.bracket.displayName}
                     </td>

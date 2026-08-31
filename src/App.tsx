@@ -31,6 +31,7 @@ export default function App() {
   const [allBrackets, setAllBrackets] = useState<UserBracket[]>([]);
   const [officialResults, setOfficialResults] = useState<Record<string, OfficialResult>>({});
   const [page, setPage] = useState<Page>('bracket');
+  const [viewingBracketUserId, setViewingBracketUserId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [editingName, setEditingName] = useState(false);
   const [nameInput, setNameInput] = useState('');
@@ -259,6 +260,12 @@ export default function App() {
     }
   }, [userId, nameInput, picks, submitted, submittedAt, saving]);
 
+  const handleViewBracket = useCallback((bracketUserId: string) => {
+    setViewingBracketUserId(bracketUserId);
+    setPage('view');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
   if (!userId) {
     return <Login onLogin={handleLogin} />;
   }
@@ -475,6 +482,7 @@ export default function App() {
             brackets={allBrackets}
             officialResults={officialResults}
             currentUserId={userId}
+            onViewBracket={handleViewBracket}
           />
         </main>
       )}
@@ -491,6 +499,7 @@ export default function App() {
             brackets={allBrackets}
             currentUserId={userId}
             officialResults={officialResults}
+            initialViewingUserId={viewingBracketUserId}
           />
         </main>
       )}

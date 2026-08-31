@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { UserBracket, OfficialResult, ROUND_POINTS } from '../types';
 import { resolveBracket, scoreBracketForLeaderboard, getTournamentMaxPoints } from '../bracketEngine';
 import Bracket from './Bracket';
@@ -10,16 +10,24 @@ interface BracketViewerProps {
   brackets: UserBracket[];
   currentUserId: string;
   officialResults: Record<string, OfficialResult>;
+  initialViewingUserId?: string | null;
 }
 
 export default function BracketViewer({
   brackets,
   currentUserId,
   officialResults,
+  initialViewingUserId = null,
 }: BracketViewerProps) {
   const submittedBrackets = brackets.filter((b) => b.submitted);
-  const [viewingId, setViewingId] = useState<string | null>(null);
+  const [viewingId, setViewingId] = useState<string | null>(initialViewingUserId);
   const [detailMatchId, setDetailMatchId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (initialViewingUserId) {
+      setViewingId(initialViewingUserId);
+    }
+  }, [initialViewingUserId]);
 
   const hasOfficialResults = Object.keys(officialResults).length > 0;
 

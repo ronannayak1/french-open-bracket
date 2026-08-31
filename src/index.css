@@ -1821,6 +1821,28 @@ body {
   border-color: rgba(241, 196, 15, 0.3);
 }
 
+.lb-card--clickable {
+  cursor: pointer;
+}
+
+.lb-card--clickable:hover {
+  border-color: var(--clay-light);
+  background: var(--bg-card-hover);
+}
+
+.lb-card--clickable:focus-visible {
+  outline: 2px solid var(--clay-light);
+  outline-offset: 2px;
+}
+
+.lb-table-row--clickable {
+  cursor: pointer;
+}
+
+.lb-table-row--clickable:hover td {
+  background: var(--bg-card-hover);
+}
+
 .lb-card-rank {
   font-size: 24px;
   min-width: 40px;
